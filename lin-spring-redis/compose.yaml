@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: web-gin-gorm-redis
+      MYSQL_USER: dev
+      MYSQL_PASSWORD: 123456
+      TZ: Asia/Shanghai  # 设置时区为 Asia/Shanghai（CST，UTC+8）
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/var/lib/redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass 123456
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+    name: mysql_data
+  redis_data:
+    name: redis_data
+
+networks:
+  app-network:
+    driver: bridge

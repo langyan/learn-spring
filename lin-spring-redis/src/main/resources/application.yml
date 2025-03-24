@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: lin-spring-redis
+    # 应用基本信息
+  # 数据源配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/learn-spring?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver # 数据库驱动类
+    # PostgreSQL 示例:
+    # url: jdbc:postgresql://localhost:5432/mydb
+    # driver-class-name: org.postgresql.Driver
+
+  # JPA/Hibernate 配置
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect # 数据库方言
+    # PostgreSQL 方言示例:
+    # database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true # 是否在控制台显示 SQL 语句
+    hibernate:
+      ddl-auto: update # Hibernate 自动 DDL 策略
+    properties:
+      hibernate:
+        format_sql: true # 格式化 SQL 语句
+        # 其他 Hibernate 高级配置
+        # connection.provider_disables_autocommit: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 0
+
+# 服务器配置
+server:
+  port: 8080 # 应用启动端口
+
+# 日志配置（可选）
+logging:
+  level:
+    org.hibernate.SQL: debug # 输出 SQL 语句
+    org.hibernate.type: trace # 输出 SQL 参数值
+    org.springframework: info
+  

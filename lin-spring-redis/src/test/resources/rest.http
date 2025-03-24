@@ -1,0 +1,32 @@
+
+GET http://localhost:8080/user/1 HTTP/1.1
+
+###
+
+POST http://localhost:8080/user HTTP/1.1
+content-type: application/json
+
+{
+    "name": "michael"
+}
+
+###
+DELETE  http://localhost:8080/user/1 HTTP/1.1
+
+###
+PUT  http://localhost:8080/user/2 HTTP/1.1
+content-type: application/json
+
+{
+    "id" : 2,
+    "name": "michael2"
+}
+
+
+###
+POST http://localhost:8080/user/sendMessage HTTP/1.1
+content-type: application/json
+
+{
+    "name": "michael"
+}
