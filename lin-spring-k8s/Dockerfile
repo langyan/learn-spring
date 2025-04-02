@@ -1,12 +1,11 @@
-# Use a lightweight Java image
-FROM openjdk:17-jdk-alpine
+# Stage 1: Build the Spring Boot application
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests  
 
-# Set the JAR file path
-ARG JAR_FILE=target/*.jar
-
-# Copy the JAR file into the container
-COPY ${JAR_FILE} app.jar
-
-# Run the application
-ENTRYPOINT ["java", "-jar", "/app.jar"]
-
+# Stage 2: Create a minimal runtime image
+FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar  
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]

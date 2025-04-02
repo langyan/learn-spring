@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lin-spring-k8s-app
+  name: lin-spring-k8s-deployment
 spec:
   replicas: 1
   selector:
