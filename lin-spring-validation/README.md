@@ -1,7 +1,7 @@
 
 
 
-``
+```
 Client Request
      ↓
 DispatcherServlet
@@ -22,4 +22,4 @@ Throws MethodArgumentNotValidException
 Caught by GlobalExceptionHandler
         ↓
 Returns 400 Bad Request with error map
-``
+```
