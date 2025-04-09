@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "DemoApplication",
+            "request": "launch",
+            "mainClass": "com.lin.spring.validation.DemoApplication",
+            "projectName": "lin-spring-validation"
+        },
+        {
+            "type": "java",
+            "name": "RedisCachingApplication",
+            "request": "launch",
+            "mainClass": "com.lin.spring.redis.RedisCachingApplication",
+            "projectName": "lin-spring-redis"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-LinSpringRetryResilience4jApplication<lin-spring-retry-resilience4j>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.lin.spring.retry.LinSpringRetryResilience4jApplication",
+            "projectName": "lin-spring-retry-resilience4j",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

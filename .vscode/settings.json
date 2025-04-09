@@ -1,0 +1,7 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.project.sourcePaths": [
+        "lin-spring-loki/src/main/java/com/lin/spring/loki",
+        "lin-spring-validation/src/main/java/com/lin/spring/validation/dto"
+    ]
+}

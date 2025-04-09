@@ -1,0 +1,23 @@
+### POST 请求示例  success
+POST http://localhost:8080/api/users/register
+Content-Type: application/json
+
+{
+    "username": "john_doe123",
+    "email": "john.doe@example.com",
+    "password": "P@ssw0rd123",
+    "age": 25,
+    "agreedToTerms": true
+}
+
+### POST 请求示例 error
+POST http://localhost:8080/api/users/register
+Content-Type: application/json
+
+{
+    "username": "jo",
+    "email": "invalid-email",
+    "password": "weak",
+    "age": 16,
+    "agreedToTerms": false
+}
