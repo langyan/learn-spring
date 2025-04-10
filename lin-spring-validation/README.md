@@ -1,5 +1,14 @@
 
+### 创建
 
+
+spring init --build=maven --java-version=17 --dependencies=web,validation --packaging=jar 
+--a=lin-spring-validation 
+--g=com.lin.spring.validation 
+--package-name=com.lin.spring.validation
+-n=lin-spring-validation lin-spring-validation;
+
+### 流程
 
 ```
 Client Request

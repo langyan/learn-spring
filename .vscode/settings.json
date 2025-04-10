@@ -1,7 +1,10 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
     "java.project.sourcePaths": [
+        "lin-spring-validation/src/main/java/com/lin/spring/validation/dto",
         "lin-spring-loki/src/main/java/com/lin/spring/loki",
-        "lin-spring-validation/src/main/java/com/lin/spring/validation/dto"
+        "lin-spring-keycloak/src/main/java/com/lin/spring/keycloak/controller",
+        "lin-spring-keycloak/src/main/java/com/lin/spring/keycloak/config",
+        "lin-spring-keycloak/src/main/java/com/lin/spring/keycloak"
     ]
 }
