@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "LinSpringMicrometerApplication",
+            "request": "launch",
+            "mainClass": "com.lin.spring.micrometer.LinSpringMicrometerApplication",
+            "projectName": "lin-spring-micrometer"
+        },
+        {
+            "type": "java",
             "name": "DemoApplication",
             "request": "launch",
             "mainClass": "com.lin.spring.validation.DemoApplication",

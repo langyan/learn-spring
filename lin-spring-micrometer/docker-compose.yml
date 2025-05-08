@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    restart: unless-stopped
+    environment:
+      - STORAGE_TYPE=mem  # 默认使用内存存储（生产环境建议修改）
+    # 如果需要持久化存储，可以取消下面的注释并配置
+    # volumes:
+    #   - ./zipkin-data:/data
+    # environment:
+    #   - STORAGE_TYPE=elasticsearch
+    #   - ES_HOSTS=http://elasticsearch:9200
