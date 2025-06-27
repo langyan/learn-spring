@@ -23,6 +23,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
+
     @GetMapping("/{transactionId}")
     public ResponseEntity<String> getMethodName(@PathVariable String transactionId) {
         //

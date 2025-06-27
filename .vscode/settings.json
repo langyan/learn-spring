@@ -5,6 +5,7 @@
         "lin-spring-loki/src/main/java/com/lin/spring/loki",
         "lin-spring-keycloak/src/main/java/com/lin/spring/keycloak/controller",
         "lin-spring-keycloak/src/main/java/com/lin/spring/keycloak/config",
-        "lin-spring-keycloak/src/main/java/com/lin/spring/keycloak"
+        "lin-spring-keycloak/src/main/java/com/lin/spring/keycloak",
+        "lin-spring-flux/src/main/java/com/lin/spring/flux/model"
     ]
 }

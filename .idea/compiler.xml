@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="lin-spring-loki" />
+        <module name="spring-boot-k8s" />
+        <module name="lin-spring-validation" />
+        <module name="lin-spring-micrometer" />
+        <module name="lin-spring-keycloak" />
+      </profile>
+      <profile name="Annotation profile for lin-spring-retry-resilience4j" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/../../repository/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+          <entry name="$PROJECT_DIR$/../../repository/org/springframework/boot/spring-boot-configuration-processor/unknown/spring-boot-configuration-processor-unknown.jar" />
+          <entry name="$PROJECT_DIR$/../../repository/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+          <entry name="$PROJECT_DIR$/../../repository/org/springframework/boot/spring-boot-configuration-processor/unknown/spring-boot-configuration-processor-unknown.jar" />
+        </processorPath>
+        <module name="lin-spring-retry-resilience4j" />
+      </profile>
+      <profile name="Annotation profile for lin-spring-security-dao-auth" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/../../repository/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="lin-spring-security-dao-auth" />
+        <module name="lin-spring-jpa" />
+      </profile>
+      <profile name="Annotation profile for lin-spring-jpa-specification" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/../../repository/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+          <entry name="$PROJECT_DIR$/../../repository/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="lin-spring-flux" />
+        <module name="lin-spring-jpa-specification" />
+        <module name="lin-spring-redis" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="lin-spring-flux" options="-parameters" />
+      <module name="lin-spring-jpa" options="-parameters" />
+      <module name="lin-spring-jpa-specification" options="-parameters" />
+      <module name="lin-spring-keycloak" options="-parameters" />
+      <module name="lin-spring-loki" options="-parameters" />
+      <module name="lin-spring-micrometer" options="-parameters" />
+      <module name="lin-spring-redis" options="-parameters" />
+      <module name="lin-spring-retry-resilience4j" options="-parameters" />
+      <module name="lin-spring-security-dao-auth" options="-parameters" />
+      <module name="lin-spring-validation" options="-parameters" />
+      <module name="spring-boot-k8s" options="-parameters" />
+    </option>
+  </component>
+</project>

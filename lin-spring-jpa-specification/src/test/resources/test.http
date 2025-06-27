@@ -1,0 +1,18 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+### 所有产品（不含任何过滤器）
+GET  http://localhost:8080/products
+
+### 按名称获取产品
+GET  http://localhost:8080/products?name=note
+
+### 按类别获取产品
+GET  http://localhost:8080/products?category=SPORTING_GOODS
+
+### 以最低价格购买产品
+GET  http://localhost:8080/products?minPrice=50
+
+### 按最高价格获取产品
+GET http://localhost:8080/products?maxPrice=500
