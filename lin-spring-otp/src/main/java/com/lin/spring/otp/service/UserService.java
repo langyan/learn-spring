@@ -33,7 +33,6 @@ public class UserService {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setRole(Role.ROLE_USER);
         user.setVerified(false);
-        user.setUsername(request.getUsername());
 
         return userRepository.save(user);
     }

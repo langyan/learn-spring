@@ -20,8 +20,6 @@ public class UserRegistrationRequest {
     private String password;
 
     private String phoneNumber;
-    @NotBlank
-    @Size(min = 6, max = 20)
-    private String username;
+  
 
 }
