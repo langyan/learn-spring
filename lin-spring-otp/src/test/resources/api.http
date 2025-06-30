@@ -1,0 +1,88 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+### Register a new user
+
+# curl -X POST http://localhost:8080/api/auth/register
+#-H "Content-Type: application/json"
+#-d '{
+#    "email": "user@example.com",
+#    "password": "password123",
+#    "phoneNumber": "+1234567890"
+#}'
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "michael",
+  "email": "user@example.com",
+  "password": "password123",
+  "phoneNumber": "+1234567890"
+}
+
+### Verify email with OTP
+# curl -X POST http://localhost:8080/api/auth/verify-email
+#-H "Content-Type: application/json"
+#-d '{
+#    "userId": 1,
+#    "code": "123456"
+#}
+POST http://localhost:8080/api/auth/verify-email
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "code": "123456"
+}
+
+### Login
+
+# curl -X POST http://localhost:8080/api/auth/login
+#-H "Content-Type: application/json"
+#-d '{
+#    "email": "user@example.com",
+#    "password": "password123"
+#}'
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+### Initiate phone verification
+
+# curl -X POST http://localhost:8080/api/auth/initiate-phone-verification
+#-H "Content-Type: application/json"
+#-d '{
+#    "userId": 1
+#}'
+POST http://localhost:8080/api/auth/initiate-phone-verification
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### Verify phone with OTP
+# curl -X POST http://localhost:8080/api/auth/verify-phone
+#-H "Content-Type: application/json"
+#-d '{
+#    "userId": 1,
+#    "code": "654321"
+#}'
+POST http://localhost:8080/api/auth/verify-phone
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "code": "654321"
+}
+
+###
+
+
+
+

@@ -35,6 +35,9 @@ spring init --boot-version=3.4.4 --build=maven --java-version=17 --dependencies=
 
 spring init --boot-version=3.5.0 --build=maven --java-version=17 --dependencies=webflux,lombok,web,validation,devtools  --packaging=jar --a=lin-spring-mongodb --g=com.lin.spring.mongodb --package-name=com.lin.spring.mongodb -n=lin-spring-mongodb lin-spring-mongodb
 
+
+spring init --boot-version=3.5.0 --build=maven --java-version=17 --dependencies=jpa,lombok,web,validation,devtools,security,mysql,jwt  --packaging=jar --a=lin-spring-otp --g=com.lin.spring.otp --package-name=com.lin.spring.otp -n=lin-spring-otp lin-spring-otp
+
 # docker 启动
 - docker-compose up -d  # 重新启动服务
 
