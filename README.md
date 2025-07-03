@@ -36,7 +36,15 @@ spring init --boot-version=3.4.4 --build=maven --java-version=17 --dependencies=
 spring init --boot-version=3.5.0 --build=maven --java-version=17 --dependencies=webflux,lombok,web,validation,devtools  --packaging=jar --a=lin-spring-mongodb --g=com.lin.spring.mongodb --package-name=com.lin.spring.mongodb -n=lin-spring-mongodb lin-spring-mongodb
 
 
-spring init --boot-version=3.5.0 --build=maven --java-version=17 --dependencies=jpa,lombok,web,validation,devtools,security,mysql,jwt  --packaging=jar --a=lin-spring-otp --g=com.lin.spring.otp --package-name=com.lin.spring.otp -n=lin-spring-otp lin-spring-otp
+spring init --boot-version=3.5.0 --build=maven --java-version=17 --dependencies=jpa,lombok,web,validation,devtools,security,mysql  --packaging=jar --a=lin-spring-otp --g=com.lin.spring.otp --package-name=com.lin.spring.otp -n=lin-spring-otp lin-spring-otp
+
+
+spring init --boot-version=3.5.0 --build=maven --java-version=17 --dependencies=jpa,lombok,web,validation,devtools,security,h2  --packaging=jar --a=lin-spring-tenant --g=com.lin.spring.tenant --package-name=com.lin.spring.tenant -n=lin-spring-tenant lin-spring-tenant
+
+spring init --boot-version=3.5.0 --build=maven --java-version=17 --dependencies=jpa,lombok,web,validation,devtools,security,h2  --packaging=jar --a=lin-spring-docker --g=com.lin.spring.docker --package-name=com.lin.spring.docker -n=lin-spring-docker-images lin-spring-docker-images
+
+spring init --boot-version=3.5.0 --build=maven --java-version=21 --dependencies=lombok,web,validation,devtools,h2  --packaging=jar --a=lin-spring-jackson-deserialization --g=com.lin.spring.jackson --package-name=com.lin.spring.jackson -n=lin-spring-jackson-deserialization lin-spring-jackson-deserialization
+
 
 # docker 启动
 - docker-compose up -d  # 重新启动服务

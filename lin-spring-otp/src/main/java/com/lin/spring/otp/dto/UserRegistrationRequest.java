@@ -20,6 +20,6 @@ public class UserRegistrationRequest {
     private String password;
 
     private String phoneNumber;
-  
+
 
 }

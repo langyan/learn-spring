@@ -1,0 +1,55 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+###
+# curl --location 'http://localhost:8080/area/calculate'
+#--header 'Content-Type: application/json'
+#--data '{
+#    "shape": "circle",
+#    "radius": 7
+#}'
+POST http://localhost:8080/area/calculate
+Content-Type: application/json
+
+{
+  "shape": "circle",
+  "radius": 7
+}
+
+###
+# curl --location 'http://localhost:8080/area/calculate'
+#--header 'Content-Type: application/json'
+#--data '{
+#    "shape": "triangle",
+#    "base": 4,
+#    "perpendicularHeight": 5
+#}'
+POST http://localhost:8080/area/calculate
+Content-Type: application/json
+
+{
+  "shape": "triangle",
+  "base": 4,
+  "perpendicularHeight": 5
+}
+
+###
+
+# curl --location 'http://localhost:8080/area/calculate'
+#--header 'Content-Type: application/json'
+#--data '{
+#    "shape": "square",
+#    "length": 4
+#}'
+POST http://localhost:8080/area/calculate
+Content-Type: application/json
+
+{
+  "shape": "square",
+  "length": 4
+}
+
+###
+
+

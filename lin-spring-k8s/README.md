@@ -1,7 +1,7 @@
 
 ## mvn clean package
 `
-E:\source_files\learn-spring\lin-spring-k8s>mvn clean package
+E:\source_files\learn-spring\lin-spring-k8s>mvn clean package -DskipTests
 `
 
 ## docker build -t lin-spring-k8s-app .
