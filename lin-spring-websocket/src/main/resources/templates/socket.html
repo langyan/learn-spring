@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Real-Time Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+</head>
+<body>
+<h1>server message: <span id="content">0</span></h1>
+<script>
+    const socket = new SockJS('/ws');
+    const stompClient = Stomp.over(socket);
+    stompClient.connect({}, () => {
+        stompClient.subscribe('/topic/data', message => {
+            // const data = JSON.parse(message.body);
+            document.getElementById("content").textContent =message.body;
+        });
+    });
+</script>
+</body>
+</html>

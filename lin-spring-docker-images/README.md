@@ -53,3 +53,13 @@ lin-spring-docker-images   multi-stage     0e5b70730858   59 seconds ago   340MB
 lin-spring-docker-images   non-optimized   dd234f57949e   15 minutes ago   669MB
 
 ````
+
+# Spring Boot Layer Tools: Split Dependencies
+
+```
+PS E:\source_files\learn-spring\lin-spring-docker-images\target> java -Djarmode=layertools -jar  lin-spring-docker-0.0.1-SNAPSHOT.jar  extract
+Warning: This command is deprecated. Use '-Djarmode=tools extract --layers --launcher' instead.
+
+PS E:\source_files\learn-spring\lin-spring-docker-images\target> cd ..
+PS E:\source_files\learn-spring\lin-spring-docker-images> docker build -t lin-spring-docker-images:layer .   
+```

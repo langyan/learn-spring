@@ -45,6 +45,12 @@ spring init --boot-version=3.5.0 --build=maven --java-version=17 --dependencies=
 
 spring init --boot-version=3.5.0 --build=maven --java-version=21 --dependencies=lombok,web,validation,devtools,h2  --packaging=jar --a=lin-spring-jackson-deserialization --g=com.lin.spring.jackson --package-name=com.lin.spring.jackson -n=lin-spring-jackson-deserialization lin-spring-jackson-deserialization
 
+spring init --boot-version=3.5.0 --build=maven --java-version=21 --dependencies=lombok,web,validation,devtools,h2  --packaging=jar --a=lin-spring-file-upload --g=com.lin.spring.file --package-name=com.lin.spring.file -n=lin-spring-file-upload lin-spring-file-upload
+
+
+spring init --boot-version=3.5.0 --build=maven --java-version=21 --dependencies=lombok,web,validation,devtools,h2,websocket,redis,thymeleaf  --packaging=jar --a=lin-spring-websocket --g=com.lin.spring.websocket --package-name=com.lin.spring.websocket -n=lin-spring-websocket lin-spring-websocket
+
+
 
 # docker 启动
 - docker-compose up -d  # 重新启动服务

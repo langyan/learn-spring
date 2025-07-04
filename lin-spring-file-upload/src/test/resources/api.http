@@ -1,0 +1,32 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+###
+# curl -X POST -F "file=@chunk1"
+#     -F "chunkNumber=1" -F "totalChunks=3"
+#     -F "fileName=largefile.zip"
+#     http://localhost:8080/api/upload/chunk
+POST http://localhost:8080/api/upload/chunk
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="chunk1"
+
+< chunk1
+--WebAppBoundary
+Content-Disposition: form-data; name="chunkNumber"
+
+1
+--WebAppBoundary
+Content-Disposition: form-data; name="totalChunks"
+
+3
+--WebAppBoundary
+Content-Disposition: form-data; name="fileName"
+
+largefile.hprof
+--WebAppBoundary--
+
+###
+

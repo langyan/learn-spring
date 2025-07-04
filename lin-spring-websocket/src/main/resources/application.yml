@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: lin-spring-websocket
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 0
+
+# 服务器配置
+server:
+  port: 8080 # 应用启动端口
+
+# 日志配置（可选）
+logging:
+  level:
+    org.hibernate.SQL: debug # 输出 SQL 语句
+    org.hibernate.type: trace # 输出 SQL 参数值
+    org.springframework: info
+  

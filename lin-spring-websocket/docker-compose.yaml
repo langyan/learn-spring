@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/var/lib/redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass 123456
+    networks:
+      - app-network
+
+volumes:
+  redis_data:
+    name: redis_data
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,19 @@
+
+
+
+###
+
+POST http://localhost:8080/api/messages/sendMessage HTTP/1.1
+content-type: application/json
+
+{
+  "name": "pub sendMessage"
+}
+###
+
+POST http://localhost:8080/api/messages/addStream HTTP/1.1
+content-type: application/json
+
+{
+  "name": "stream addmessage"
+}
