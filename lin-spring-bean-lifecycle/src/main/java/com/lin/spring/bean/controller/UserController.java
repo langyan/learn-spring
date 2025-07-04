@@ -1,6 +1,6 @@
 package com.lin.spring.bean.controller;
 
-import com.lin.spring.bean.model.User;
+import com.lin.spring.bean.entity.User;
 import com.lin.spring.bean.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<String> addUser(@RequestBody User user){
-        userService.createUser(user.getName());
+        userService.createUser(user);
         return ResponseEntity.ok("create user");
     }
 }
