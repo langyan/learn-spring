@@ -1,0 +1,12 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+###
+POST http://localhost:8080//api/user HTTP/1.1
+content-type: application/json
+
+{
+  "id": 1,
+  "name": "michael"
+}
