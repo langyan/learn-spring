@@ -53,6 +53,8 @@ spring init --boot-version=3.5.0 --build=maven --java-version=21 --dependencies=
 
 spring init --boot-version=3.5.3 --build=maven --java-version=21 --dependencies=lombok,web,validation,devtools  --packaging=jar --a=lin-spring-bean-lifecycle  --g=com.lin.spring.bean --package-name=com.lin.spring.bean -n=lin-spring-bean-lifecycle lin-spring-bean-lifecycle
 
+spring init --boot-version=3.5.3 --build=maven --java-version=21 --dependencies=lombok,web,validation,devtools  --packaging=jar --a=lin-spring-restful-version  --g=com.lin.spring.restful --package-name=com.lin.spring.restful -n=lin-spring-restful-version lin-spring-restful-version
+
 
 # docker 启动
 - docker-compose up -d  # 重新启动服务

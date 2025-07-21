@@ -1,0 +1,32 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+### 在 URL 本身中包含版本
+GET http://localhost:8080/api/v1/products HTTP/1.1
+
+###
+GET http://localhost:8080/api/v2/products HTTP/1.1
+
+### API 版本被指定为查询参数
+GET http://localhost:8080/api/products?version=1 HTTP/1.1
+
+###
+GET http://localhost:8080/api/products?version=2 HTTP/1.1
+
+### 每个请求发送自定义标头来对 API 进行版本控制
+GET http://localhost:8080/api/products HTTP/1.1
+X-API-VERSION: 1
+
+###
+GET http://localhost:8080/api/products HTTP/1.1
+X-API-VERSION: 2
+
+
+### 版本使用自定义 MIME 类型嵌入在标头中：Accept
+GET http://localhost:8080/api/products HTTP/1.1
+Accept: application/vnd.myapp.v1+json
+
+###
+GET http://localhost:8080/api/products HTTP/1.1
+Accept: application/vnd.myapp.v2+json
