@@ -1,0 +1,31 @@
+### GET request to example server
+GET https://examples.http-client.intellij.net/get
+    ?generated-in=IntelliJ IDEA
+
+### 成功场景测试
+POST http://localhost:8080/orders/create
+Content-Type: application/json
+
+{
+  "customerName": "张三",
+  "amount": 199.99
+}
+
+### 失败场景测试
+
+POST http://localhost:8080/orders/create-with-error
+Content-Type: application/json
+
+{
+  "customerName": "李四",
+  "amount": 299.99
+}
+
+### 没有事务场景测试
+POST http://localhost:8080/orders/create-no-transactional
+Content-Type: application/json
+
+{
+  "customerName": "王五",
+  "amount": 399.99
+}

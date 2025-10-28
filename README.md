@@ -56,6 +56,17 @@ spring init --boot-version=3.5.3 --build=maven --java-version=21 --dependencies=
 spring init --boot-version=3.5.3 --build=maven --java-version=21 --dependencies=lombok,web,validation,devtools  --packaging=jar --a=lin-spring-restful-version  --g=com.lin.spring.restful --package-name=com.lin.spring.restful -n=lin-spring-restful-version lin-spring-restful-version
 
 
+spring init --boot-version=3.5.3 --build=maven --java-version=21 --dependencies=lombok,web,validation,devtools  --packaging=jar --a=lin-spring-resilience4j-bulkhead  --g=com.lin.spring.bulkhead --package-name=com.lin.spring.bulkhead -n=lin-spring-resilience4j-bulkhead lin-spring-resilience4j-bulkhead
+
+
+spring init --boot-version=3.5.3 --build=maven --java-version=21 --dependencies=lombok,web,validation,devtools  --packaging=jar --a=lin-spring-greetings-api-web  --g=com.lin.spring.web --package-name=com.lin.spring.web -n=lin-spring-greetings-api-web lin-spring-greetings-api-web
+
+spring init --boot-version=3.5.3 --build=maven --java-version=21 --dependencies=lombok,webflux,validation,devtools  --packaging=jar --a=lin-spring-greetings-api-reactive  --g=com.lin.spring.reactive --package-name=com.lin.spring.reactive -n=lin-spring-greetings-api-reactive lin-spring-greetings-api-reactive
+
+
+spring init --boot-version=3.4.4 --build=maven --java-version=17 --dependencies=jpa,lombok,web,validation,devtools,h2 --packaging=jar --a=lin-spring-transactional --g=com.lin.spring.transactional --package-name=com.lin.spring.transactional  -n=lin-spring-transactional lin-spring-transactional
+
+
 # docker 启动
 - docker-compose up -d  # 重新启动服务
 

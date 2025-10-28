@@ -1,0 +1,81 @@
+### 测试 Saga 编排器
+
+### 执行成功的 Saga 流程
+POST http://localhost:8080/api/saga/execute
+Content-Type: application/json
+
+{
+  "userId": "user123",
+  "productId": "product456",
+  "quantity": 2,
+  "amount": 99.99
+}
+
+### 执行会失败的 Saga 流程（金额过大）
+POST http://localhost:8080/api/saga/execute
+Content-Type: application/json
+
+{
+  "userId": "user123",
+  "productId": "product456",
+  "quantity": 2,
+  "amount": 1500.00
+}
+
+### 查询 Saga 状态
+GET http://localhost:8080/api/saga/SAGA_123456
+
+### 测试订单服务
+
+### 创建订单
+POST http://localhost:8081/api/orders
+Content-Type: application/json
+
+{
+  "userId": "user123",
+  "productId": "product456",
+  "quantity": 2,
+  "amount": 99.99
+}
+
+### 获取订单
+GET http://localhost:8081/api/orders/ORD_123456
+
+### 取消订单
+POST http://localhost:8081/api/orders/ORD_123456/cancel
+
+### 测试支付服务
+
+### 处理支付
+POST http://localhost:8082/api/payments
+Content-Type: application/json
+
+{
+  "orderId": "ORD_123456",
+  "userId": "user123",
+  "amount": 99.99
+}
+
+### 获取支付信息
+GET http://localhost:8082/api/payments/PAY_123456
+
+### 退款
+POST http://localhost:8082/api/payments/PAY_123456/refund
+
+### 测试库存服务
+
+### 预留库存
+POST http://localhost:8083/api/inventory/reserve
+Content-Type: application/json
+
+{
+  "orderId": "ORD_123456",
+  "productId": "product456",
+  "quantity": 2
+}
+
+### 获取库存信息
+GET http://localhost:8083/api/inventory/INV_123456
+
+### 释放库存
+POST http://localhost:8083/api/inventory/INV_123456/release

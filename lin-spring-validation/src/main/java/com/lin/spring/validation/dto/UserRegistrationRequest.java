@@ -1,5 +1,6 @@
 package com.lin.spring.validation.dto;
 
+import com.lin.spring.validation.validator.ValidPhoneNumber;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -28,4 +29,8 @@ public class UserRegistrationRequest {
     
     @AssertTrue(message = "You must agree to terms and conditions")
     private boolean agreedToTerms;
+
+
+    @ValidPhoneNumber
+    private String phoneNumber;
 }

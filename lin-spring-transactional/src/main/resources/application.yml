@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: lin-spring-transactional
+  datasource:
+    url: jdbc:h2:mem:lin-spring-transactional
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update

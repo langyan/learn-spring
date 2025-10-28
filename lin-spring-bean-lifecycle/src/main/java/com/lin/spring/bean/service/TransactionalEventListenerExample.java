@@ -10,6 +10,7 @@ public class TransactionalEventListenerExample {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleBeforeCommit(CustomSpringEvent event) {
+
         System.out.println("Handling event BEFORE transaction commit.");
     }
 }
