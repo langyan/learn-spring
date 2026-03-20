@@ -1,0 +1,74 @@
+### Spring Boot Flyway Demo API Tests
+
+### 1. Get all users
+GET http://localhost:8080/api/users
+Accept: application/json
+
+### 2. Get user by ID
+GET http://localhost:8080/api/users/1
+Accept: application/json
+
+### 3. Get user by username
+GET http://localhost:8080/api/users/username/john_doe
+Accept: application/json
+
+### 4. Create new user
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "username": "new_user",
+  "email": "newuser@example.com",
+  "password": "securepass123",
+  "phone": "+15551234567",
+  "address": "789 New Street, Boston, MA 02101",
+  "enabled": true
+}
+
+### 5. Update user
+PUT http://localhost:8080/api/users/1
+Content-Type: application/json
+
+{
+  "username": "john_doe_updated",
+  "email": "john.doe.updated@example.com",
+  "password": "newpassword123",
+  "phone": "+15559876543",
+  "address": "321 Updated Street, Seattle, WA 98101",
+  "enabled": true
+}
+
+### 6. Delete user
+DELETE http://localhost:8080/api/users/1
+
+### 7. Get user statistics
+GET http://localhost:8080/api/users/stats
+Accept: application/json
+
+### 8. Create user with validation error (short password)
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "username": "bad_user",
+  "email": "baduser@example.com",
+  "password": "123",
+  "enabled": true
+}
+
+### 9. Create user with validation error (invalid email)
+POST http://localhost:8080/api/users
+Content-Type: application/json
+
+{
+  "username": "bad_user2",
+  "email": "invalid-email",
+  "password": "password123",
+  "enabled": true
+}
+
+### 10. H2 Console (Open in browser)
+### http://localhost:8080/h2-console
+### JDBC URL: jdbc:h2:mem:flywaydb
+### Username: sa
+### Password: (empty)
