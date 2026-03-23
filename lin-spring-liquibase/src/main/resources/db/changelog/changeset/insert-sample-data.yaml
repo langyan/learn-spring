@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-sample-users
+      author: lin
+      context: development
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: admin
+              - column:
+                  name: email
+                  value: admin@example.com
+              - column:
+                  name: password
+                  value: admin123
+              - column:
+                  name: phone
+                  value: 13800138000
+              - column:
+                  name: address
+                  value: Admin Street 1
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: user001
+              - column:
+                  name: email
+                  value: user001@example.com
+              - column:
+                  name: password
+                  value: password123
+              - column:
+                  name: phone
+                  value: 13900139000
+              - column:
+                  name: address
+                  value: User Street 1
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: user002
+              - column:
+                  name: email
+                  value: user002@example.com
+              - column:
+                  name: password
+                  value: password456
+              - column:
+                  name: phone
+                  value: 13700137000
+              - column:
+                  name: address
+                  value: User Street 2
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: username
+                  value: testuser
+              - column:
+                  name: email
+                  value: testuser@example.com
+              - column:
+                  name: password
+                  value: testpass123
+              - column:
+                  name: enabled
+                  valueBoolean: false

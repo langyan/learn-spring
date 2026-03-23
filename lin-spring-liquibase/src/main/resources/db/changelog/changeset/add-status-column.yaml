@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-user-status-column
+      author: lin
+      context: development
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: ACTIVE
+                  constraints:
+                    nullable: false
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: login_count
+                  type: INT
+                  defaultValue: 0
+                  constraints:
+                    nullable: false
+        - createIndex:
+            indexName: idx_users_status
+            tableName: users
+            columns:
+              - column:
+                  name: status

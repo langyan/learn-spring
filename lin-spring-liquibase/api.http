@@ -1,0 +1,125 @@
+### Spring Boot + Liquibase API Tests
+
+# Base URL
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+### Health Check
+GET {{baseUrl}}/actuator/health
+
+### 1. Get All Users
+GET {{baseUrl}}/api/users
+
+### 2. Get Active Users Only
+GET {{baseUrl}}/api/users/active
+
+### 3. Get User by ID
+GET {{baseUrl}}/api/users/1
+
+### 4. Get User by Username
+GET {{baseUrl}}/api/users/username/admin
+
+### 5. Create New User
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+  "username": "john_doe",
+  "email": "john.doe@example.com",
+  "password": "securepass123",
+  "phone": "1234567890",
+  "address": "123 Main Street, City"
+}
+
+### 6. Create User - Validation Error (Short Username)
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+  "username": "ab",
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### 7. Create User - Validation Error (Invalid Email)
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "email": "invalid-email",
+  "password": "password123"
+}
+
+### 8. Create User - Validation Error (Short Password)
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "12345"
+}
+
+### 9. Update User
+PUT {{baseUrl}}/api/users/1
+Content-Type: {{contentType}}
+
+{
+  "username": "admin_updated",
+  "email": "admin.updated@example.com",
+  "password": "newadminpass123",
+  "phone": "9999999999",
+  "address": "456 Updated Street, New City"
+}
+
+### 10. Update User - Partial Update (Keep Password)
+PUT {{baseUrl}}/api/users/1
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "email": "admin@example.com",
+  "password": "",
+  "phone": "1111111111",
+  "address": "789 Partial Street"
+}
+
+### 11. Delete User
+DELETE {{baseUrl}}/api/users/4
+
+### 12. Disable User
+PATCH {{baseUrl}}/api/users/1/disable
+
+### 13. Enable User
+PATCH {{baseUrl}}/api/users/1/enable
+
+### 14. Record Login (Update Last Login)
+POST {{baseUrl}}/api/users/1/login
+
+### 15. Get Non-Existent User (404 Error)
+GET {{baseUrl}}/api/users/99999
+
+### 16. Create Duplicate User (409 Conflict)
+POST {{baseUrl}}/api/users
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "email": "another@admin.com",
+  "password": "password123"
+}
+
+### H2 Console Access
+# Open in browser: http://localhost:8080/h2-console
+# JDBC URL: jdbc:h2:mem:testdb
+# Username: sa
+# Password: (leave empty)
+
+### Check Liquibase Changesets
+# Liquibase tables are created automatically:
+# - DATABASECHANGELOG: Tracks executed changesets
+# - DATABASECHANGELOGLOCK: Prevents concurrent migrations
+
+# Query to see Liquibase history in H2:
+# SELECT * FROM DATABASECHANGELOG ORDER BY DATEEXECUTED;
