@@ -22,7 +22,7 @@ A new Spring Boot module demonstrating Elasticsearch integration using Spring Da
 | Component | Version |
 |-----------|---------|
 | Spring Boot | 3.5.0 |
-| Java | 17 |
+| Java | 21 |
 | Spring Data Elasticsearch | (managed by Boot) |
 | Lombok | (managed by Boot) |
 | Elasticsearch | 8.12.0 (Docker) |
