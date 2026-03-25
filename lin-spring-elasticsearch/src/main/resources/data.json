@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Wireless Mouse",
+    "description": "Ergonomic wireless mouse with precision tracking",
+    "price": 29.99,
+    "category": "Electronics",
+    "tags": ["accessories", "wireless", "computer"]
+  },
+  {
+    "name": "USB-C Hub",
+    "description": "Multi-port USB-C hub with HDMI and SD card reader",
+    "price": 49.99,
+    "category": "Electronics",
+    "tags": ["accessories", "usb-c", "hub"]
+  },
+  {
+    "name": "Mechanical Keyboard",
+    "description": "RGB mechanical keyboard with blue switches",
+    "price": 89.99,
+    "category": "Electronics",
+    "tags": ["keyboard", "gaming", "rgb"]
+  },
+  {
+    "name": "Yoga Mat",
+    "description": "Non-slip yoga mat for exercise and meditation",
+    "price": 24.99,
+    "category": "Sports",
+    "tags": ["fitness", "yoga", "exercise"]
+  },
+  {
+    "name": "Water Bottle",
+    "description": "Insulated stainless steel water bottle",
+    "price": 19.99,
+    "category": "Sports",
+    "tags": ["hydration", "fitness", "outdoor"]
+  }
+]
