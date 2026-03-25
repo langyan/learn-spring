@@ -1,0 +1,68 @@
+### Create Product
+POST http://localhost:8080/api/products
+Content-Type: application/json
+
+{
+  "name": "Wireless Headphones",
+  "description": "High-quality noise-cancelling headphones with Bluetooth connectivity",
+  "price": 99.99,
+  "category": "Electronics",
+  "tags": ["audio", "wireless", "bluetooth"]
+}
+
+### Create Another Product
+POST http://localhost:8080/api/products
+Content-Type: application/json
+
+{
+  "name": "Running Shoes",
+  "description": "Comfortable running shoes for daily jogging",
+  "price": 79.99,
+  "category": "Sports",
+  "tags": ["footwear", "running", "fitness"]
+}
+
+### Create Laptop Product
+POST http://localhost:8080/api/products
+Content-Type: application/json
+
+{
+  "name": "Gaming Laptop",
+  "description": "Powerful laptop for gaming and content creation",
+  "price": 1299.99,
+  "category": "Electronics",
+  "tags": ["computer", "gaming", "performance"]
+}
+
+### Get All Products
+GET http://localhost:8080/api/products
+
+### Get Product by ID
+GET http://localhost:8080/api/products/{{id}}
+
+### Update Product
+PUT http://localhost:8080/api/products/{{id}}
+Content-Type: application/json
+
+{
+  "name": "Premium Wireless Headphones",
+  "description": "High-quality noise-cancelling headphones with Bluetooth 5.0",
+  "price": 149.99,
+  "category": "Electronics",
+  "tags": ["audio", "wireless", "bluetooth", "premium"]
+}
+
+### Search Products (full-text)
+GET http://localhost:8080/api/products/search?keyword=wireless&page=0&size=10
+
+### Search Products (electronics)
+GET http://localhost:8080/api/products/search?keyword=electronics&page=0&size=10
+
+### Advanced Search (Electronics under $200)
+GET http://localhost:8080/api/products/advanced?category=Electronics&maxPrice=200&page=0&size=10
+
+### Advanced Search (Price range)
+GET http://localhost:8080/api/products/advanced?minPrice=50&maxPrice=150&page=0&size=10
+
+### Delete Product
+DELETE http://localhost:8080/api/products/{{id}}
