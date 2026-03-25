@@ -1,0 +1,44 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: payment-service
+  profiles:
+    active: dev
+  config:
+    import: optional:configserver:http://localhost:8888
+
+# Eureka Client
+eureka:
+  client:
+    service-url:
+      defaultZone: http://admin:password@localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# Resilience4j Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      externalPaymentGateway:
+        sliding-window-size: 10
+        failure-rate-threshold: 60
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+  retry:
+    instances:
+      externalPaymentGateway:
+        max-attempts: 2
+        wait-duration: 500ms
+  timelimiter:
+    instances:
+      externalPaymentGateway:
+        timeout-duration: 5s
+
+# Logging
+logging:
+  level:
+    com.lin.spring.service.payment: DEBUG
+    io.github.resilience4j: INFO

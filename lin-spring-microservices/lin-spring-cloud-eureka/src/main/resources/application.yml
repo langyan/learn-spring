@@ -1,0 +1,46 @@
+server:
+  port: 8761
+
+spring:
+  application:
+    name: eureka-server
+
+  # Security configuration
+  security:
+    user:
+      name: admin
+      password: password
+
+# Eureka Server Configuration
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+  client:
+    # Don't register with itself (it's the server)
+    register-with-eureka: false
+    # Don't fetch registry (it's the server)
+    fetch-registry: false
+    service-url:
+      defaultZone: http://admin:password@localhost:8761/eureka/
+  server:
+    # Disable self-preservation mode for development
+    enable-self-preservation: false
+    # Eviction interval for expired instances
+    eviction-interval-timer-in-ms: 5000
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.netflix.eureka: INFO
+    com.netflix.discovery: INFO

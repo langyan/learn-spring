@@ -1,0 +1,28 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: user-service
+  profiles:
+    active: dev
+  config:
+    import: optional:configserver:http://localhost:8888
+
+# Eureka Client
+eureka:
+  client:
+    service-url:
+      defaultZone: http://admin:password@localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# JWT Configuration (fallback values)
+jwt:
+  secret: bXktc2VjcmV0LWtleS1mb3ItbWljcm9zZXJ2aWNlcy10ZXN0aW5nLXB1cnBvc2Utb25seQ==
+  expiration: 3600000
+
+# Logging
+logging:
+  level:
+    com.lin.spring.service.user: DEBUG

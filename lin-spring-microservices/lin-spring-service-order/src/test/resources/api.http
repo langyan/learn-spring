@@ -1,0 +1,32 @@
+### Order Service API Test File
+
+### Create order
+POST http://localhost:8081/api/orders
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "items": [
+    {
+      "productCode": "PROD-001",
+      "productName": "Laptop",
+      "quantity": 1,
+      "price": 999.99
+    },
+    {
+      "productCode": "PROD-002",
+      "productName": "Mouse",
+      "quantity": 2,
+      "price": 29.99
+    }
+  ]
+}
+
+### Get order by ID
+GET http://localhost:8081/api/orders/1
+
+### Get order by order number
+GET http://localhost:8081/api/orders/number/ORD-1234567890
+
+### Health Check
+GET http://localhost:8081/actuator/health

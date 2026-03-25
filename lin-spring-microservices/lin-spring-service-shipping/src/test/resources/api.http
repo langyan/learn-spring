@@ -1,0 +1,36 @@
+### Shipping Service API Test File
+
+### Create shipment
+POST http://localhost:8084/api/shipping
+Content-Type: application/json
+
+{
+  "orderId": 1,
+  "recipientName": "John Doe",
+  "recipientAddress": "123 Main St",
+  "recipientCity": "New York",
+  "recipientPostalCode": "10001",
+  "recipientCountry": "USA",
+  "carrier": "FedEx"
+}
+
+### Get shipment by ID
+GET http://localhost:8084/api/shipping/1
+
+### Get shipment by tracking number
+GET http://localhost:8084/api/shipping/tracking/TRK-1234567890-123
+
+### Get shipment by order ID
+GET http://localhost:8084/api/shipping/order/1
+
+### Get all shipments
+GET http://localhost:8084/api/shipping
+
+### Update shipment status
+POST http://localhost:8084/api/shipping/1/status?status=SHIPPED
+
+### Ship order
+POST http://localhost:8084/api/shipping/order/1/ship
+
+### Health Check
+GET http://localhost:8084/actuator/health

@@ -1,0 +1,15 @@
+### Eureka Server API Test File
+
+### Health Check
+GET http://localhost:8761/actuator/health
+
+### Eureka Dashboard (Basic Auth required)
+# Use browser: http://localhost:8761
+# Username: admin
+# Password: password
+
+### Get Applications Registry
+GET http://admin:password@localhost:8761/eureka/apps
+
+### Get specific service status
+GET http://admin:password@localhost:8761/eureka/apps/eureka-server

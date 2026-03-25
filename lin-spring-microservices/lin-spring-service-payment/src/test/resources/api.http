@@ -1,0 +1,31 @@
+### Payment Service API Test File
+
+### Process payment
+POST http://localhost:8082/api/payments
+Content-Type: application/json
+
+{
+  "orderId": 1,
+  "amount": 99.99,
+  "currency": "USD",
+  "paymentMethod": "CREDIT_CARD",
+  "cardNumber": "4111111111111111",
+  "cardHolder": "John Doe",
+  "expiryDate": "12/25",
+  "cvv": "123"
+}
+
+### Get payment by ID
+GET http://localhost:8082/api/payments/1
+
+### Get payment by transaction ID
+GET http://localhost:8082/api/payments/transaction/abc-123-def
+
+### Get payment by order ID
+GET http://localhost:8082/api/payments/order/1
+
+### Refund payment
+POST http://localhost:8082/api/payments/1/refund
+
+### Health Check
+GET http://localhost:8082/actuator/health

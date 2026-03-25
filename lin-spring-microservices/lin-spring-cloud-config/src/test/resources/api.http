@@ -1,0 +1,22 @@
+### Config Server API Test File
+
+### Health Check
+GET http://localhost:8888/actuator/health
+
+### Get User Service Configuration
+GET http://localhost:8888/user-service/default
+
+### Get Order Service Configuration
+GET http://localhost:8888/order-service/default
+
+### Get Payment Service Configuration
+GET http://localhost:8888/payment-service/default
+
+### Get Inventory Service Configuration
+GET http://localhost:8888/inventory-service/default
+
+### Get Shipping Service Configuration
+GET http://localhost:8888/shipping-service/default
+
+### Get Gateway Service Configuration
+GET http://localhost:8888/gateway-service/default

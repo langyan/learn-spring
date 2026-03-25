@@ -1,0 +1,69 @@
+### API Gateway Test File
+
+### Health Check
+GET http://localhost:8080/actuator/health
+
+### User Service Routes (through gateway)
+### Register user (public)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password123",
+  "email": "test@example.com",
+  "fullName": "Test User"
+}
+
+### Login user (public)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "password123"
+}
+
+### Get current user (requires JWT)
+GET http://localhost:8080/api/users/me
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Order Service Routes (through gateway, requires JWT)
+### Create order (requires JWT)
+POST http://localhost:8080/api/orders
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "items": [
+    {
+      "productCode": "PROD-001",
+      "productName": "Laptop",
+      "quantity": 1,
+      "price": 999.99
+    }
+  ]
+}
+
+### Get order by ID (requires JWT)
+GET http://localhost:8080/api/orders/1
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Inventory Service Routes (through gateway, requires JWT)
+### Get all inventory
+GET http://localhost:8080/api/inventory
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Payment Service Routes (through gateway, requires JWT)
+### Get payment by order ID
+GET http://localhost:8080/api/payments/order/1
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Shipping Service Routes (through gateway, requires JWT)
+### Get shipment by order ID
+GET http://localhost:8080/api/shipping/order/1
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Gateway Routes
+GET http://localhost:8080/actuator/gateway/routes

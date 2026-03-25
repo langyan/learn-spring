@@ -1,0 +1,49 @@
+# User Service Configuration
+server:
+  port: 8085
+
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:h2:mem:userdb
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# JWT Configuration
+jwt:
+  secret: bXktc2VjcmV0LWtleS1mb3ItbWljcm9zZXJ2aWNlcy10ZXN0aW5nLXB1cnBvc2Utb25seQ==
+  expiration: 3600000 # 1 hour in milliseconds
+
+# Eureka Client
+eureka:
+  client:
+    service-url:
+      defaultZone: http://admin:password@localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    com.lin.spring.service.user: DEBUG

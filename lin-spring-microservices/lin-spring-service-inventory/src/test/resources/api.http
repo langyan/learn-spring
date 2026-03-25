@@ -1,0 +1,41 @@
+### Inventory Service API Test File
+
+### Create inventory item
+POST http://localhost:8083/api/inventory
+Content-Type: application/json
+
+{
+  "productCode": "PROD-001",
+  "productName": "Laptop",
+  "quantity": 100,
+  "price": 999.99,
+  "reorderLevel": 10
+}
+
+### Get all inventory
+GET http://localhost:8083/api/inventory
+
+### Get inventory by product code
+GET http://localhost:8083/api/inventory/product/PROD-001
+
+### Reserve stock
+POST http://localhost:8083/api/inventory/reserve
+Content-Type: application/json
+
+{
+  "productCode": "PROD-001",
+  "quantity": 5,
+  "orderId": 1
+}
+
+### Confirm reservation
+POST http://localhost:8083/api/inventory/confirm?productCode=PROD-001&quantity=5
+
+### Release reservation
+POST http://localhost:8083/api/inventory/release?productCode=PROD-001&quantity=5
+
+### Update stock
+PUT http://localhost:8083/api/inventory/product/PROD-001/stock?quantity=150
+
+### Health Check
+GET http://localhost:8083/actuator/health

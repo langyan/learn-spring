@@ -1,0 +1,32 @@
+### User Service API Test File
+
+### Register new user
+POST http://localhost:8085/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "password": "password123",
+  "email": "john@example.com",
+  "fullName": "John Doe"
+}
+
+### Login user
+POST http://localhost:8085/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "password": "password123"
+}
+
+### Get current user (requires JWT token)
+GET http://localhost:8085/api/users/me
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Get user by ID (requires JWT token)
+GET http://localhost:8085/api/users/1
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Health Check
+GET http://localhost:8085/actuator/health
