@@ -120,8 +120,9 @@ spring.application.name=lin-spring-elasticsearch
 server.port=8080
 
 spring.elasticsearch.uris=http://localhost:9200
-spring.elasticsearch.username=elastic
-spring.elasticsearch.password=changeme
+# Security disabled in Docker for development; credentials for future production use
+# spring.elasticsearch.username=elastic
+# spring.elasticsearch.password=changeme
 
 logging.level.org.springframework.data.elasticsearch=DEBUG
 ```
@@ -239,11 +240,11 @@ GET http://localhost:8080/api/products/search?keyword=wireless&page=0&size=10
 GET http://localhost:8080/api/products/advanced?category=Electronics&minPrice=50&maxPrice=200&page=0&size=10
 ```
 
-## Success Criteria
+## Acceptance Criteria
 
-- [x] All CRUD operations working correctly
-- [x] Full-text search returns relevant results
-- [x] Advanced search with filters works
-- [x] Pagination functions properly
-- [x] Docker Compose starts Elasticsearch successfully
-- [x] Code follows existing project patterns
+- [ ] All CRUD operations working correctly
+- [ ] Full-text search returns relevant results
+- [ ] Advanced search with filters works
+- [ ] Pagination functions properly
+- [ ] Docker Compose starts Elasticsearch successfully
+- [ ] Code follows existing project patterns
