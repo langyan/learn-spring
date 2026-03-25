@@ -29,6 +29,7 @@ The repository is organized as multiple independent Maven modules, each demonstr
 - **lin-spring-loki** - Logging with Loki
 - **lin-spring-k8s** - Kubernetes deployment examples
 - **lin-spring-docker-images** - Docker containerization
+- **lin-spring-flyway** - Database migration with Flyway
 
 ## Common Development Tasks
 
@@ -122,6 +123,9 @@ Many modules include HTTP test files (`api.http`) that can be used with HTTP cli
 3. Leverage Spring Boot DevTools for automatic restarts
 4. Test APIs using the provided `api.http` files
 5. Check module-specific README files for additional instructions
+
+
+## por
 
 ## Important Notes
 
