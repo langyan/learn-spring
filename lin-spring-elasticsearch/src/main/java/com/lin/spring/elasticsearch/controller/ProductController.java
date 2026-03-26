@@ -1,6 +1,7 @@
 package com.lin.spring.elasticsearch.controller;
 
 import com.lin.spring.elasticsearch.entity.Product;
+import com.lin.spring.elasticsearch.entity.ProductDocument;
 import com.lin.spring.elasticsearch.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -54,7 +55,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<Product>> search(
+    public ResponseEntity<Page<ProductDocument>> search(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -63,7 +64,7 @@ public class ProductController {
     }
 
     @GetMapping("/advanced")
-    public ResponseEntity<Page<Product>> advancedSearch(
+    public ResponseEntity<Page<ProductDocument>> advancedSearch(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
