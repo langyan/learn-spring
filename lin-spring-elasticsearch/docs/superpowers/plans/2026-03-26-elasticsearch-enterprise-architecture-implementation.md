@@ -212,7 +212,7 @@ Expected: 所有服务启动成功
 Run:
 ```bash
 # 安装 IK 分词器
-docker exec elasticsearch elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v9.1.4/elasticsearch-analysis-ik-9.1.4.zip
+docker exec elasticsearch elasticsearch-plugin install --batch https://release.infinilabs.com/analysis-ik/stable/elasticsearch-analysis-ik-9.1.4.zip
 
 # 重启 Elasticsearch
 docker restart elasticsearch

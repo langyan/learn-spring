@@ -36,4 +36,12 @@ public interface OutboxRepository extends JpaRepository<Outbox, Long> {
      * Count messages by status
      */
     long countByStatus(OutboxStatus status);
+
+    /**
+     * Find published messages processed before given time
+     */
+    List<Outbox> findByStatusAndProcessedAtBeforeOrderByCreatedAtDesc(
+            OutboxStatus status,
+            java.time.LocalDateTime processedAt
+    );
 }

@@ -1,5 +1,8 @@
+E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\config\ElasticsearchConfig.java
+E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\config\KafkaConfig.java
+E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\controller\OutboxController.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\controller\ProductController.java
-E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\controller\SyncController.java
+E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\dto\CategoryStats.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\dto\PriceRangeStats.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\dto\ProductCreateRequest.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\dto\ProductUpdateRequest.java
@@ -9,7 +12,6 @@ E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spri
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\entity\OutboxStatus.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\entity\Product.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\entity\ProductDocument.java
-E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\entity\SyncLog.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\entity\TagsConverter.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\event\ProductChangedEvent.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\event\ProductData.java
@@ -19,18 +21,14 @@ E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spri
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\exception\GlobalExceptionHandler.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\exception\ProductNotFoundException.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\LinSpringElasticsearchApplication.java
-E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\mapper\ProductMapper.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\repository\OutboxRepository.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\repository\ProductElasticsearchRepository.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\repository\ProductJpaRepository.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\repository\ProductRepository.java
-E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\repository\SyncLogRepository.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\service\OutboxPoller.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\service\ProductEventListener.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\service\ProductReadService.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\service\ProductSearchService.java
-E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\service\ProductService.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\service\ProductSyncConsumer.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\service\ProductWriteService.java
-E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\service\SyncService.java
 E:\source_files\learn-spring\lin-spring-elasticsearch\src\main\java\com\lin\spring\elasticsearch\util\JsonUtils.java

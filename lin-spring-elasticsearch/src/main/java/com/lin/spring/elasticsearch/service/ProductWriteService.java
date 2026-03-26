@@ -35,9 +35,9 @@ public class ProductWriteService {
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice().doubleValue());
+        product.setPrice(request.getPrice());
         product.setCategory(request.getCategory());
-        product.setTagsFromList(request.getTags());
+        product.setTags(request.getTags());
 
         Product savedProduct = productJpaRepository.save(product);
 
@@ -67,13 +67,13 @@ public class ProductWriteService {
             product.setDescription(request.getDescription());
         }
         if (request.getPrice() != null) {
-            product.setPrice(request.getPrice().doubleValue());
+            product.setPrice(request.getPrice());
         }
         if (request.getCategory() != null) {
             product.setCategory(request.getCategory());
         }
         if (request.getTags() != null) {
-            product.setTagsFromList(request.getTags());
+            product.setTags(request.getTags());
         }
 
         Product updatedProduct = productJpaRepository.save(product);

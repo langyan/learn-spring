@@ -157,9 +157,9 @@ public class ProductEventListener {
                 .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
-                .price(java.math.BigDecimal.valueOf(product.getPrice()))
+                .price(product.getPrice())
                 .category(product.getCategory())
-                .tags(product.getTagsAsList())
+                .tags(product.getTags())
                 .build();
     }
 }

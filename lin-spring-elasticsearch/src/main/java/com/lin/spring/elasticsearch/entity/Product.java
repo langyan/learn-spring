@@ -1,10 +1,13 @@
 package com.lin.spring.elasticsearch.entity;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "products")
+@EntityListeners(AuditingEntityListener.class)
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,48 +26,19 @@ public class Product {
     @Column(length = 1000)
     private String description;
 
-    private Double price;
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
 
     private String category;
 
-    private String tags; // JSON string storage
+    @Convert(converter = TagsConverter.class)
+    private List<String> tags;
 
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    // Helper methods for tags conversion
-    public List<String> getTagsAsList() {
-        try {
-            if (tags == null || tags.isEmpty()) {
-                return List.of();
-            }
-            return new ObjectMapper().readValue(tags, List.class);
-        } catch (Exception e) {
-            return List.of();
-        }
-    }
-
-    public void setTagsFromList(List<String> tagList) {
-        try {
-            if (tagList == null || tagList.isEmpty()) {
-                this.tags = "[]";
-            } else {
-                this.tags = new ObjectMapper().writeValueAsString(tagList);
-            }
-        } catch (Exception e) {
-            this.tags = "[]";
-        }
-    }
 }

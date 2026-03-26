@@ -31,8 +31,15 @@ public class ProductReadService {
     /**
      * Get all products
      */
-    public List<Product> findAll() {
+    public List<Product> getAll() {
         log.debug("Fetching all products");
         return productJpaRepository.findAll();
+    }
+
+    /**
+     * Get all products
+     */
+    public List<Product> findAll() {
+        return getAll();
     }
 }
