@@ -1,14 +1,22 @@
 # lin-spring-elasticsearch
 
-Spring Boot Elasticsearch integration demo demonstrating CRUD operations and full-text search.
+Spring Boot demo with dual-storage architecture: H2 database as primary store, Elasticsearch for search.
+
+## Architecture
+
+```
+Controller → Service → JPA Repository (H2) ──► Product Table
+                  → @Async → ES Repository ──► Elasticsearch Index
+                  → SyncLog (sync status tracking)
+```
 
 ## Features
 
-- Document indexing with Spring Data Elasticsearch
-- Full-text search across multiple fields
-- Advanced search with filters and pagination
-- Repository-based query derivation
-- Docker Compose for local Elasticsearch
+- Dual-storage with H2 database + Elasticsearch
+- Async double-write pattern
+- Sync status tracking and retry
+- Full-text search via Elasticsearch
+- RESTful API with product management
 
 ## Prerequisites
 
@@ -28,21 +36,22 @@ docker-compose up -d
 ./mvnw spring-boot:run
 ```
 
-3. Test the APIs:
-- Use `src/test/resources/api.http` with your HTTP client
-- Or import sample data from `src/main/resources/data.json`
+3. Test the APIs using `src/test/resources/api.http`
 
 ## API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/products` | Create product |
-| GET | `/api/products/{id}` | Get by ID |
-| GET | `/api/products` | Get all |
-| PUT | `/api/products/{id}` | Update product |
-| DELETE | `/api/products/{id}` | Delete product |
-| GET | `/api/products/search` | Full-text search |
-| GET | `/api/products/advanced` | Advanced search |
+| Method | Path | Description | Data Source |
+|--------|------|-------------|-------------|
+| POST | `/api/products` | Create product | DB + async ES |
+| GET | `/api/products/{id}` | Get by ID | Database |
+| GET | `/api/products` | Get all | Database |
+| PUT | `/api/products/{id}` | Update product | DB + async ES |
+| DELETE | `/api/products/{id}` | Delete product | DB + async ES |
+| GET | `/api/products/search` | Full-text search | Elasticsearch |
+| GET | `/api/products/advanced` | Advanced search | Elasticsearch |
+| GET | `/api/sync/logs` | Get sync logs | Database |
+| GET | `/api/sync/logs/failed` | Get failed syncs | Database |
+| POST | `/api/sync/retry/{id}` | Retry sync | Async |
 
 ## Example Usage
 
@@ -61,12 +70,12 @@ curl -X POST http://localhost:8080/api/products \
 
 ### Search Products
 ```bash
-curl "http://localhost:8080/api/products/search?keyword=wireless&page=0&size=10"
+curl "http://localhost:8080/api/products/search?keyword=wireless"
 ```
 
-### Advanced Search
+### Check Sync Status
 ```bash
-curl "http://localhost:8080/api/products/advanced?category=Electronics&maxPrice=100"
+curl http://localhost:8080/api/sync/logs/failed
 ```
 
 ## Shutdown
@@ -75,3 +84,5 @@ Stop Elasticsearch:
 ```bash
 docker-compose down
 ```
+
+**Note:** H2 database data is lost when application stops. Use file-based H2 or other database for persistence.
