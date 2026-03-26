@@ -929,7 +929,7 @@ services:
       - mysql-data:/var/lib/mysql
 
   elasticsearch:
-    image: elasticsearch:8.12.0
+    image: elasticsearch:9.1.4
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -1063,7 +1063,7 @@ docker-compose up -d mysql elasticsearch kafka zookeeper
 2. **安装 IK 分词器**（首次）:
 ```bash
 docker exec elasticsearch \
-  elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v8.12.0/elasticsearch-analysis-ik-8.12.0.zip
+  elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v9.1.4/elasticsearch-analysis-ik-9.1.4.zip
 
 docker restart elasticsearch
 ```

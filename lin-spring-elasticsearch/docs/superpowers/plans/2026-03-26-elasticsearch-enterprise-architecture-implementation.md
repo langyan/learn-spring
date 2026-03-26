@@ -6,7 +6,7 @@
 
 **Architecture:** CQRS + Event-Driven + Outbox Pattern。写操作通过 Spring Events 发布到 Kafka，消费者同步到 Elasticsearch。Kafka 失败时降级到 Outbox 表，定时任务重试。读操作分离：精确查询用 MySQL，全文搜索用 Elasticsearch (IK 分词器)。
 
-**Tech Stack:** Spring Boot 3.5.0, Java 21, MySQL 8.0, Kafka 7.5.0, Elasticsearch 8.12.0, IK Analyzer, Spring Data JPA, Spring Data Elasticsearch, Spring Kafka
+**Tech Stack:** Spring Boot 3.5.0, Java 21, MySQL 8.0, Kafka 7.5.0, Elasticsearch 9.1.4, IK Analyzer, Spring Data JPA, Spring Data Elasticsearch, Spring Kafka
 
 ---
 
@@ -159,7 +159,7 @@ services:
       - mysql-data:/var/lib/mysql
 
   elasticsearch:
-    image: elasticsearch:8.12.0
+    image: elasticsearch:9.1.4
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
@@ -212,7 +212,7 @@ Expected: 所有服务启动成功
 Run:
 ```bash
 # 安装 IK 分词器
-docker exec elasticsearch elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v8.12.0/elasticsearch-analysis-ik-8.12.0.zip
+docker exec elasticsearch elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v9.1.4/elasticsearch-analysis-ik-9.1.4.zip
 
 # 重启 Elasticsearch
 docker restart elasticsearch
@@ -2237,7 +2237,7 @@ HTTP Request → ProductWriteService → JPA Repository → MySQL
 - Spring Boot 3.5.0
 - MySQL 8.0
 - Kafka 7.5.0
-- Elasticsearch 8.12.0
+- Elasticsearch 9.1.4
 - IK Analyzer
 
 ## 快速开始
@@ -2252,7 +2252,7 @@ docker-compose up -d
 
 ```bash
 docker exec elasticsearch \
-  elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v8.12.0/elasticsearch-analysis-ik-8.12.0.zip
+  elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v9.1.4/elasticsearch-analysis-ik-9.1.4.zip
 
 docker restart elasticsearch
 ```
