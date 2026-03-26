@@ -1,39 +1,69 @@
 package com.lin.spring.elasticsearch.entity;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Document(indexName = "products")
+@Entity
+@Table(name = "products")
 public class Product {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Field(type = FieldType.Text, analyzer = "standard")
     private String name;
 
-    @Field(type = FieldType.Text, analyzer = "standard")
+    @Column(length = 1000)
     private String description;
 
-    @Field(type = FieldType.Double)
     private Double price;
 
-    @Field(type = FieldType.Keyword)
     private String category;
 
-    @Field(type = FieldType.Keyword)
-    private List<String> tags;
+    private String tags; // JSON string storage
 
-    @Field(type = FieldType.Date)
     private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // Helper methods for tags conversion
+    public List<String> getTagsAsList() {
+        try {
+            if (tags == null || tags.isEmpty()) {
+                return List.of();
+            }
+            return new ObjectMapper().readValue(tags, List.class);
+        } catch (Exception e) {
+            return List.of();
+        }
+    }
+
+    public void setTagsFromList(List<String> tagList) {
+        try {
+            if (tagList == null || tagList.isEmpty()) {
+                this.tags = "[]";
+            } else {
+                this.tags = new ObjectMapper().writeValueAsString(tagList);
+            }
+        } catch (Exception e) {
+            this.tags = "[]";
+        }
+    }
 }

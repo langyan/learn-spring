@@ -4,6 +4,7 @@ import com.lin.spring.elasticsearch.entity.Product;
 import com.lin.spring.elasticsearch.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class ProductService {
         return repository.save(product);
     }
 
-    public Optional<Product> getById(String id) {
+    public Optional<Product> getById(Long id) {
         return repository.findById(id);
     }
 
@@ -30,7 +31,7 @@ public class ProductService {
         return (List<Product>) repository.findAll();
     }
 
-    public Product update(String id, Product product) {
+    public Product update(Long id, Product product) {
         product.setId(id);
         Product existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
@@ -38,23 +39,34 @@ public class ProductService {
         return repository.save(product);
     }
 
-    public void delete(String id) {
+    public void delete(Long id) {
         repository.deleteById(id);
     }
 
     public Page<Product> search(String keyword, Pageable pageable) {
-        return repository.findByNameContainingOrDescriptionContaining(
-                keyword, keyword, pageable);
+        List<Product> products = repository.searchByNameOrDescription(keyword);
+        return createPage(products, pageable);
     }
 
     public Page<Product> advancedSearch(String category, Double minPrice, Double maxPrice, Pageable pageable) {
+        List<Product> products;
         if (category != null && maxPrice != null) {
-            return repository.findByCategoryAndPriceLessThanEqual(category, maxPrice, pageable);
+            products = repository.findByCategoryAndPriceLessThanEqual(category, maxPrice);
         } else if (category != null) {
-            return repository.findByCategory(category, pageable);
+            products = repository.findByCategory(category);
         } else if (minPrice != null && maxPrice != null) {
-            return repository.findByPriceBetween(minPrice, maxPrice, pageable);
+            products = repository.findByPriceBetween(minPrice, maxPrice);
+        } else {
+            products = repository.findAll();
         }
-        return repository.findAll(pageable);
+        return createPage(products, pageable);
+    }
+
+    private Page<Product> createPage(List<Product> products, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), products.size());
+        List<Product> pageContent = start < products.size() ?
+                products.subList(start, end) : List.of();
+        return new org.springframework.data.domain.PageImpl<>(pageContent, pageable, products.size());
     }
 }
