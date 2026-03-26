@@ -55,15 +55,15 @@ public class ProductSyncConsumer {
 
         try {
             switch (productEvent.getOperation()) {
-                case CREATED:
+                case CREATE:
                     handleCreatedEvent(productEvent);
                     break;
 
-                case UPDATED:
+                case UPDATE:
                     handleUpdatedEvent(productEvent);
                     break;
 
-                case DELETED:
+                case DELETE:
                     handleDeletedEvent(productEvent);
                     break;
 

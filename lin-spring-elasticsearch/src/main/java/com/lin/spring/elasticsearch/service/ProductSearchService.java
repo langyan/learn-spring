@@ -203,13 +203,16 @@ public class ProductSearchService {
 
         Map<String, Long> categoryCounts = new HashMap<>();
 
-        searchHits.getAggregations().get("categories")
-                .getAggregate()
-                .sterms()
-                .buckets().array()
-                .forEach(bucket -> {
-                    categoryCounts.put(bucket.key(), bucket.docCount());
-                });
+        var aggregations = searchHits.getAggregations();
+        if (aggregations != null && aggregations.aggregation("categories") != null) {
+            aggregations.aggregation("categories")
+                    .getAggregate()
+                    .sterms()
+                    .buckets().array()
+                    .forEach(bucket -> {
+                        categoryCounts.put(bucket.key(), bucket.docCount());
+                    });
+        }
 
         log.info("Category aggregation: {}", categoryCounts);
         return categoryCounts;
@@ -239,17 +242,20 @@ public class ProductSearchService {
 
         List<PriceRangeStats> priceRanges = new ArrayList<>();
 
-        searchHits.getAggregations().get("price_ranges")
-                .getAggregate()
-                .range()
-                .buckets().array()
-                .forEach(bucket -> {
-                    priceRanges.add(PriceRangeStats.builder()
-                            .range(bucket.key())
-                            .count(bucket.docCount())
-                            .products(new ArrayList<>())
-                            .build());
-                });
+        var aggregations = searchHits.getAggregations();
+        if (aggregations != null && aggregations.aggregation("price_ranges") != null) {
+            aggregations.aggregation("price_ranges")
+                    .getAggregate()
+                    .range()
+                    .buckets().array()
+                    .forEach(bucket -> {
+                        priceRanges.add(PriceRangeStats.builder()
+                                .range(bucket.key())
+                                .count(bucket.docCount())
+                                .products(new ArrayList<>())
+                                .build());
+                    });
+        }
 
         log.info("Price range aggregation: {} ranges", priceRanges.size());
         return priceRanges;
@@ -334,28 +340,33 @@ public class ProductSearchService {
 
         // Extract category aggregations
         Map<String, Long> categoryAggs = new HashMap<>();
-        searchHits.getAggregations().get("categories")
-                .getAggregate()
-                .sterms()
-                .buckets().array()
-                .forEach(bucket -> categoryAggs.put(bucket.key(), bucket.docCount()));
+        var aggregations = searchHits.getAggregations();
+        if (aggregations != null && aggregations.aggregation("categories") != null) {
+            aggregations.aggregation("categories")
+                    .getAggregate()
+                    .sterms()
+                    .buckets().array()
+                    .forEach(bucket -> categoryAggs.put(bucket.key(), bucket.docCount()));
+        }
 
         // Extract price range aggregations
         List<PriceRangeStats> priceRanges = new ArrayList<>();
-        searchHits.getAggregations().get("price_ranges")
-                .getAggregate()
-                .range()
-                .buckets().array()
-                .forEach(bucket -> {
-                    priceRanges.add(PriceRangeStats.builder()
-                            .range(bucket.key())
-                            .count(bucket.docCount())
-                            .products(new ArrayList<>())
-                            .build());
-                });
+        if (aggregations != null && aggregations.aggregation("price_ranges") != null) {
+            aggregations.aggregation("price_ranges")
+                    .getAggregate()
+                    .range()
+                    .buckets().array()
+                    .forEach(bucket -> {
+                        priceRanges.add(PriceRangeStats.builder()
+                                .range(bucket.key())
+                                .count(bucket.docCount())
+                                .products(new ArrayList<>())
+                                .build());
+                    });
+        }
 
-        Map<String, Map<String, Long>> aggregations = new HashMap<>();
-        aggregations.put("categories", categoryAggs);
+        Map<String, Map<String, Long>> aggregationsMap = new HashMap<>();
+        aggregationsMap.put("categories", categoryAggs);
 
         log.info("Search with aggregations: {} results, {} categories, {} price ranges",
                 results.size(), categoryAggs.size(), priceRanges.size());
@@ -366,7 +377,7 @@ public class ProductSearchService {
                 .page(page)
                 .pageSize(size)
                 .totalPages(totalPages)
-                .aggregations(aggregations)
+                .aggregations(aggregationsMap)
                 .priceRanges(priceRanges)
                 .build();
     }

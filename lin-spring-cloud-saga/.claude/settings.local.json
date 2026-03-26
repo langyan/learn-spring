@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//e/source_files/learn-spring/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

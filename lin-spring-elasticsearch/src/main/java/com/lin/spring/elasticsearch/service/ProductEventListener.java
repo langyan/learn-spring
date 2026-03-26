@@ -48,9 +48,9 @@ public class ProductEventListener {
                 event.productId(), event.operation());
 
         try {
-            // Fetch product data for CREATED and UPDATED operations
+            // Fetch product data for CREATE and UPDATE operations
             ProductData productData = null;
-            if (event.operation() != ProductOperation.DELETED) {
+            if (event.operation() != ProductOperation.DELETE) {
                 Product product = productJpaRepository.findById(event.productId())
                         .orElseThrow(() -> new RuntimeException(
                                 "Product not found: " + event.productId()
@@ -61,9 +61,9 @@ public class ProductEventListener {
 
             // Create ProductEvent
             ProductEvent productEvent;
-            if (event.operation() == ProductOperation.CREATED) {
+            if (event.operation() == ProductOperation.CREATE) {
                 productEvent = ProductEvent.create(productData);
-            } else if (event.operation() == ProductOperation.UPDATED) {
+            } else if (event.operation() == ProductOperation.UPDATE) {
                 productEvent = ProductEvent.update(productData);
             } else {
                 productEvent = ProductEvent.delete(event.productId());
@@ -104,7 +104,7 @@ public class ProductEventListener {
     private void saveToOutbox(ProductChangedEvent event) {
         try {
             ProductData productData = null;
-            if (event.operation() != ProductOperation.DELETED) {
+            if (event.operation() != ProductOperation.DELETE) {
                 Product product = productJpaRepository.findById(event.productId())
                         .orElse(null);
 
@@ -115,9 +115,9 @@ public class ProductEventListener {
 
             // Create ProductEvent for serialization
             ProductEvent productEvent;
-            if (event.operation() == ProductOperation.CREATED && productData != null) {
+            if (event.operation() == ProductOperation.CREATE && productData != null) {
                 productEvent = ProductEvent.create(productData);
-            } else if (event.operation() == ProductOperation.UPDATED && productData != null) {
+            } else if (event.operation() == ProductOperation.UPDATE && productData != null) {
                 productEvent = ProductEvent.update(productData);
             } else {
                 productEvent = ProductEvent.delete(event.productId());

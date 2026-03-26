@@ -43,7 +43,7 @@ public class ProductWriteService {
 
         // Publish event after successful save
         eventPublisher.publishEvent(
-                new ProductChangedEvent(savedProduct.getId(), ProductOperation.CREATED)
+                new ProductChangedEvent(savedProduct.getId(), ProductOperation.CREATE)
         );
 
         log.info("Product created with ID: {}", savedProduct.getId());
@@ -80,7 +80,7 @@ public class ProductWriteService {
 
         // Publish event after successful update
         eventPublisher.publishEvent(
-                new ProductChangedEvent(updatedProduct.getId(), ProductOperation.UPDATED)
+                new ProductChangedEvent(updatedProduct.getId(), ProductOperation.UPDATE)
         );
 
         log.info("Product updated: {}", id);
@@ -102,7 +102,7 @@ public class ProductWriteService {
 
         // Publish event after successful delete
         eventPublisher.publishEvent(
-                new ProductChangedEvent(id, ProductOperation.DELETED)
+                new ProductChangedEvent(id, ProductOperation.DELETE)
         );
 
         log.info("Product deleted: {}", id);
