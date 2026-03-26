@@ -719,7 +719,9 @@ package com.lin.spring.elasticsearch.config;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
+import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -748,12 +750,6 @@ public class ElasticsearchConfig {
         return new ElasticsearchRestTemplate(elasticsearchClient());
     }
 }
-```
-
-需要添加 import：
-```java
-import org.apache.http.HttpHost;
-import co.elastic.clients.transport.ElasticsearchTransport;
 ```
 
 - [ ] **Step 2: 提交**
@@ -1336,11 +1332,12 @@ git commit -m "feat: add ProductReadService for MySQL queries"
 ```java
 package com.lin.spring.elasticsearch.service;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.AverageAggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
-import co.elastic.clients.elasticsearch._types.query_dsl.*;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.json.JsonData;
 import com.lin.spring.elasticsearch.dto.PriceRangeStats;
 import com.lin.spring.elasticsearch.dto.SearchCriteria;
@@ -1352,11 +1349,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchAggregations;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
-import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -1369,12 +1364,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProductSearchService {
 
-    private final ElasticsearchClient elasticsearchClient;
     private final ElasticsearchOperations elasticsearchOperations;
 
     public Page<ProductDocument> search(String keyword, Pageable pageable) {
-        // 使用 Elasticsearch Java Client API 直接构建查询
-        var query = Query.of(q -> q
+        Query query = Query.of(q -> q
             .multiMatch(m -> m
                 .fields("name^2", "description^1.5", "tags", "category")
                 .operator(Operator.Or)
@@ -1386,50 +1379,57 @@ public class ProductSearchService {
             .withPageable(pageable)
             .build();
 
-        return elasticsearchOperations.search(nativeQuery, ProductDocument.class, elasticsearchClient)
-            .map(SearchHit::getContent);
+        SearchHits<ProductDocument> hits = elasticsearchOperations.search(nativeQuery, ProductDocument.class);
+        return hits.map(SearchHit::getContent);
     }
 
     public Page<ProductDocument> advancedSearch(SearchCriteria criteria, Pageable pageable) {
-        // 使用 BoolQuery.Builder 构建复杂查询
-        var boolQuery = BoolQuery.of(b -> {
-            if (StringUtils.hasText(criteria.getKeyword())) {
-                b.must(m -> m
-                    .multiMatch(mm -> mm
-                        .fields("name^2", "description")
-                        .query(criteria.getKeyword())));
-            }
-            if (StringUtils.hasText(criteria.getCategory())) {
-                b.filter(f -> f
-                    .term(t -> t
-                        .field("category")
-                        .value(criteria.getCategory())));
-            }
-            if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
-                var range = b.filter().get(b.filter().size() - 1).range().field("price");
-                if (criteria.getMinPrice() != null) {
-                    range.gte(JsonData.of(criteria.getMinPrice()));
-                }
-                if (criteria.getMaxPrice() != null) {
-                    range.lte(JsonData.of(criteria.getMaxPrice()));
-                }
-            }
-            return b;
-        });
+        BoolQuery.Builder boolBuilder = new BoolQuery.Builder();
 
-        Query query = Query.of(q -> q.bool(boolQuery));
+        // 关键词搜索
+        if (StringUtils.hasText(criteria.getKeyword())) {
+            boolBuilder.must(m -> m
+                .multiMatch(mm -> mm
+                    .fields("name^2", "description")
+                    .query(criteria.getKeyword())));
+        }
+
+        // 分类过滤
+        if (StringUtils.hasText(criteria.getCategory())) {
+            boolBuilder.filter(f -> f
+                .term(t -> t
+                    .field("category")
+                    .value(criteria.getCategory())));
+        }
+
+        // 价格范围过滤
+        if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
+            boolBuilder.filter(r -> r
+                .range(range -> {
+                    range.field("price");
+                    if (criteria.getMinPrice() != null) {
+                        range.gte(JsonData.of(criteria.getMinPrice()));
+                    }
+                    if (criteria.getMaxPrice() != null) {
+                        range.lte(JsonData.of(criteria.getMaxPrice()));
+                    }
+                    return range;
+                }));
+        }
+
+        Query query = Query.of(q -> q.bool(boolBuilder.build()));
 
         NativeQuery nativeQuery = NativeQuery.builder()
             .withQuery(query)
             .withPageable(pageable)
             .build();
 
-        return elasticsearchOperations.search(nativeQuery, ProductDocument.class, elasticsearchClient)
-            .map(SearchHit::getContent);
+        SearchHits<ProductDocument> hits = elasticsearchOperations.search(nativeQuery, ProductDocument.class);
+        return hits.map(SearchHit::getContent);
     }
 
     public Map<String, Long> aggregateByCategory(String keyword) {
-        var query = Query.of(q -> q
+        Query query = Query.of(q -> q
             .multiMatch(m -> m
                 .fields("name", "description")
                 .query(keyword)));
@@ -1444,9 +1444,9 @@ public class ProductSearchService {
             .withMaxResults(0)
             .build();
 
-        SearchHits<ProductDocument> response = elasticsearchOperations.search(nativeQuery, ProductDocument.class, elasticsearchClient);
+        SearchHits<ProductDocument> hits = elasticsearchOperations.search(nativeQuery, ProductDocument.class);
 
-        return ((ElasticsearchAggregations) response.getAggregations())
+        return ((ElasticsearchAggregations) hits.getAggregations())
             .aggregations()
             .get("category_count")
             .sterms()
@@ -1460,7 +1460,7 @@ public class ProductSearchService {
     }
 
     public List<PriceRangeStats> aggregateByPriceRanges(String keyword) {
-        var query = Query.of(q -> q
+        Query query = Query.of(q -> q
             .queryString(qs -> qs.query(keyword)));
 
         NativeQuery nativeQuery = NativeQuery.builder()
@@ -1477,9 +1477,9 @@ public class ProductSearchService {
             .withMaxResults(0)
             .build();
 
-        SearchHits<ProductDocument> response = elasticsearchOperations.search(nativeQuery, ProductDocument.class, elasticsearchClient);
+        SearchHits<ProductDocument> hits = elasticsearchOperations.search(nativeQuery, ProductDocument.class);
 
-        return ((ElasticsearchAggregations) response.getAggregations())
+        return ((ElasticsearchAggregations) hits.getAggregations())
             .aggregations()
             .get("price_ranges")
             .range()
@@ -1494,7 +1494,7 @@ public class ProductSearchService {
     }
 
     public SearchResultWithAggregations searchWithAggregations(String keyword, Pageable pageable) {
-        var query = Query.of(q -> q
+        Query query = Query.of(q -> q
             .multiMatch(m -> m
                 .fields("name^2", "description")
                 .query(keyword)));
@@ -1508,13 +1508,13 @@ public class ProductSearchService {
             .withPageable(pageable)
             .build();
 
-        SearchHits<ProductDocument> response = elasticsearchOperations.search(nativeQuery, ProductDocument.class, elasticsearchClient);
+        SearchHits<ProductDocument> hits = elasticsearchOperations.search(nativeQuery, ProductDocument.class);
 
-        List<ProductDocument> products = response.getSearchHits().stream()
+        List<ProductDocument> products = hits.getSearchHits().stream()
             .map(SearchHit::getContent)
             .toList();
 
-        Map<String, Long> categoryCounts = ((ElasticsearchAggregations) response.getAggregations())
+        Map<String, Long> categoryCounts = ((ElasticsearchAggregations) hits.getAggregations())
             .aggregations()
             .get("categories")
             .sterms()
@@ -1526,7 +1526,7 @@ public class ProductSearchService {
                 StringTermsBucket::docCount
             ));
 
-        Double avgPrice = ((ElasticsearchAggregations) response.getAggregations())
+        Double avgPrice = ((ElasticsearchAggregations) hits.getAggregations())
             .aggregations()
             .get("avg_price")
             .avg()
@@ -1536,13 +1536,13 @@ public class ProductSearchService {
             products,
             categoryCounts,
             avgPrice,
-            response.getTotalHits()
+            hits.getTotalHits()
         );
     }
 }
 ```
 
-说明：使用 Elasticsearch Java Client API (`Query.of()`, `BoolQuery.of()`) 构建查询，这是 Spring Data Elasticsearch 推荐的方式。
+说明：使用 Spring Data Elasticsearch 的 `ElasticsearchOperations` 和 `NativeQuery`，这是推荐的方式。不需要 `ElasticsearchClient` 直接注入。
 
 - [ ] **Step 2: 提交**
 
