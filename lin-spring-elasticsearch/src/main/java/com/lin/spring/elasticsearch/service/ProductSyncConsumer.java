@@ -117,7 +117,7 @@ public class ProductSyncConsumer {
     /**
      * Handle DELETED event - delete from Elasticsearch
      */
-    private void handleDeletedEvent(ProductEvent productEvent) {
+    private void handleDeletedEvent(ProductEvent productEvent) throws Exception {
         Long productId = productEvent.getProductData().getId();
         log.info("Handling DELETED event for product: {}", productId);
 
@@ -139,7 +139,7 @@ public class ProductSyncConsumer {
             // If document doesn't exist, that's okay - it might have been already deleted
             if (!e.getMessage().contains("index_not_found_exception") &&
                 !e.getMessage().contains("document_missing_exception")) {
-                throw e;
+                throw new RuntimeException("Failed to delete product from Elasticsearch", e);
             }
 
             log.info("Product already deleted or doesn't exist: {}", productId);

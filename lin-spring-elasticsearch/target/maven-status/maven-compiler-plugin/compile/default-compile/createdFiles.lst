@@ -1,3 +1,4 @@
+com\lin\spring\elasticsearch\entity\ProductDocument$ProductDocumentBuilder.class
 com\lin\spring\elasticsearch\service\ProductService.class
 com\lin\spring\elasticsearch\exception\ProductNotFoundException.class
 com\lin\spring\elasticsearch\exception\ErrorResponse$FieldError$FieldErrorBuilder.class
@@ -18,6 +19,7 @@ com\lin\spring\elasticsearch\dto\ProductUpdateRequest.class
 com\lin\spring\elasticsearch\event\ProductEvent$ProductEventBuilder.class
 com\lin\spring\elasticsearch\event\ProductEvent.class
 com\lin\spring\elasticsearch\controller\ProductController.class
+com\lin\spring\elasticsearch\service\ProductReadService.class
 com\lin\spring\elasticsearch\dto\SearchCriteria.class
 com\lin\spring\elasticsearch\mapper\ProductMapper.class
 com\lin\spring\elasticsearch\entity\Product.class
@@ -27,12 +29,18 @@ com\lin\spring\elasticsearch\controller\SyncController.class
 com\lin\spring\elasticsearch\event\ProductData$ProductDataBuilder.class
 com\lin\spring\elasticsearch\dto\ProductUpdateRequest$ProductUpdateRequestBuilder.class
 com\lin\spring\elasticsearch\repository\ProductElasticsearchRepository.class
+com\lin\spring\elasticsearch\service\ProductEventListener.class
 com\lin\spring\elasticsearch\entity\SyncLog.class
 com\lin\spring\elasticsearch\event\ProductData.class
+com\lin\spring\elasticsearch\service\ProductSearchService.class
 com\lin\spring\elasticsearch\entity\TagsConverter.class
 com\lin\spring\elasticsearch\exception\ErrorResponse$ErrorResponseBuilder.class
+com\lin\spring\elasticsearch\service\ProductWriteService.class
 com\lin\spring\elasticsearch\dto\PriceRangeStats$ProductSummary$ProductSummaryBuilder.class
 com\lin\spring\elasticsearch\entity\ProductDocument.class
+com\lin\spring\elasticsearch\service\ProductSyncConsumer$1.class
+com\lin\spring\elasticsearch\service\ProductSyncConsumer.class
+com\lin\spring\elasticsearch\util\JsonUtils.class
 com\lin\spring\elasticsearch\entity\Outbox$OutboxBuilder.class
 com\lin\spring\elasticsearch\entity\SyncLog$SyncStatus.class
 com\lin\spring\elasticsearch\exception\ErrorResponse$FieldError.class

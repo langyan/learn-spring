@@ -1,5 +1,6 @@
 package com.lin.spring.elasticsearch.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lin.spring.elasticsearch.entity.Outbox;
 import com.lin.spring.elasticsearch.entity.OutboxStatus;
 import com.lin.spring.elasticsearch.entity.Product;
@@ -34,6 +35,7 @@ public class ProductEventListener {
     private final KafkaTemplate<String, ProductEvent> kafkaTemplate;
     private final ProductJpaRepository productJpaRepository;
     private final OutboxRepository outboxRepository;
+    private final ObjectMapper objectMapper;
 
     private static final String KAFKA_TOPIC = "product-events";
     private static final long KAFKA_TIMEOUT_SECONDS = 3;
@@ -124,7 +126,7 @@ public class ProductEventListener {
             }
 
             // Convert to JSON
-            String payload = com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(productEvent);
+            String payload = objectMapper.writeValueAsString(productEvent);
 
             Outbox outbox = Outbox.builder()
                     .aggregateType("Product")

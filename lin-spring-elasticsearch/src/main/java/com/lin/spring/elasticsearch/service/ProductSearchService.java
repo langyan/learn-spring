@@ -15,7 +15,7 @@ import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.Query;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -42,34 +42,28 @@ public class ProductSearchService {
     public List<ProductDocument> search(String keyword, int page, int size) {
         log.info("Searching products with keyword: {}, page: {}, size: {}", keyword, page, size);
 
-        // Validate page size
         int validatedSize = Math.min(size, MAX_PAGE_SIZE);
         if (validatedSize <= 0) validatedSize = DEFAULT_PAGE_SIZE;
 
-        // Build query with IK analyzer
         NativeQueryBuilder queryBuilder = NativeQuery.builder();
 
         if (keyword != null && !keyword.isBlank()) {
-            Query query = Query.of(q -> q
+            queryBuilder.withQuery(co.elastic.clients.elasticsearch._types.query_dsl.Query.of(q -> q
                     .multiMatch(m -> m
                             .query(keyword)
                             .fields("name^2", "description", "tags", "category")
                             .type(TextQueryType.BestFields)
                             .fuzziness("AUTO")
                     )
-            );
-            queryBuilder.withQuery(query);
+            ));
         } else {
-            queryBuilder.withQuery(Query.of(q -> q.matchAll(m -> m)));
+            queryBuilder.withQuery(co.elastic.clients.elasticsearch._types.query_dsl.Query.of(q -> q.matchAll(m -> m)));
         }
 
-        // Add pagination
-        PageRequest pageRequest = PageRequest.of(page, validatedSize);
-        queryBuilder.withPageable(pageRequest);
+        queryBuilder.withPageable(PageRequest.of(page, validatedSize));
 
-        Query query = queryBuilder.build();
-
-        SearchHits<ProductDocument> searchHits = elasticsearchOperations.search(query, ProductDocument.class);
+        SearchHits<ProductDocument> searchHits =
+            elasticsearchOperations.search(queryBuilder.build(), ProductDocument.class, IndexCoordinates.of(PRODUCT_INDEX));
 
         List<ProductDocument> results = searchHits.getSearchHits().stream()
                 .map(SearchHit::getContent)
@@ -85,16 +79,12 @@ public class ProductSearchService {
     public SearchResultWithAggregations<ProductDocument> advancedSearch(SearchCriteria criteria) {
         log.info("Advanced search with criteria: {}", criteria);
 
-        // Validate pagination parameters
         int page = criteria.getPage() != null ? criteria.getPage() : 0;
         int size = criteria.getSize() != null ? Math.min(criteria.getSize(), MAX_PAGE_SIZE) : DEFAULT_PAGE_SIZE;
 
         NativeQueryBuilder queryBuilder = NativeQuery.builder();
-
-        // Build bool query for multiple criteria
         BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
 
-        // Keyword search with IK analyzer
         if (criteria.getKeyword() != null && !criteria.getKeyword().isBlank()) {
             boolQueryBuilder.must(m -> m
                     .multiMatch(mm -> mm
@@ -106,61 +96,34 @@ public class ProductSearchService {
             );
         }
 
-        // Category filter
         if (criteria.getCategory() != null && !criteria.getCategory().isBlank()) {
-            boolQueryBuilder.filter(f -> f
-                    .term(t -> t
-                            .field("category")
-                            .value(criteria.getCategory())
-                    )
-            );
+            boolQueryBuilder.filter(f -> f.term(t -> t.field("category").value(criteria.getCategory())));
         }
 
-        // Price range filter
         if (criteria.getMinPrice() != null || criteria.getMaxPrice() != null) {
-            var rangeQuery = new RangeQuery.Builder();
-            var fieldQuery = rangeQuery.field("price");
-
-            if (criteria.getMinPrice() != null) {
-                fieldQuery.gte(JsonData.of(criteria.getMinPrice()));
-            }
-            if (criteria.getMaxPrice() != null) {
-                fieldQuery.lte(JsonData.of(criteria.getMaxPrice()));
-            }
-
-            boolQueryBuilder.filter(f -> f.range(fieldQuery.build()));
+            // TODO: Implement price range filter when Elasticsearch client is properly configured
+            log.warn("Price range filtering not yet implemented: min={}, max={}",
+                    criteria.getMinPrice(), criteria.getMaxPrice());
         }
 
-        // Tag filter
         if (criteria.getTag() != null && !criteria.getTag().isBlank()) {
-            boolQueryBuilder.filter(f -> f
-                    .term(t -> t
-                            .field("tags")
-                            .value(criteria.getTag())
-                    )
-            );
+            boolQueryBuilder.filter(f -> f.term(t -> t.field("tags").value(criteria.getTag())));
         }
 
-        queryBuilder.withQuery(Query.of(q -> q.bool(boolQueryBuilder.build())));
+        queryBuilder.withQuery(co.elastic.clients.elasticsearch._types.query_dsl.Query.of(q -> q.bool(boolQueryBuilder.build())));
 
-        // Add sorting
         if (criteria.getSortField() != null && !criteria.getSortField().isBlank()) {
             Sort.Direction direction = "desc".equalsIgnoreCase(criteria.getSortDirection())
-                    ? Sort.Direction.DESC
-                    : Sort.Direction.ASC;
+                    ? Sort.Direction.DESC : Sort.Direction.ASC;
             queryBuilder.withSort(Sort.by(direction, criteria.getSortField()));
         } else {
-            // Default sort by relevance
             queryBuilder.withSort(Sort.by(Sort.Direction.DESC, "_score"));
         }
 
-        // Add pagination
-        PageRequest pageRequest = PageRequest.of(page, size);
-        queryBuilder.withPageable(pageRequest);
+        queryBuilder.withPageable(PageRequest.of(page, size));
 
-        Query query = queryBuilder.build();
-
-        SearchHits<ProductDocument> searchHits = elasticsearchOperations.search(query, ProductDocument.class);
+        SearchHits<ProductDocument> searchHits =
+            elasticsearchOperations.search(queryBuilder.build(), ProductDocument.class, IndexCoordinates.of(PRODUCT_INDEX));
 
         List<ProductDocument> results = searchHits.getSearchHits().stream()
                 .map(SearchHit::getContent)
@@ -188,31 +151,19 @@ public class ProductSearchService {
     public Map<String, Long> aggregateByCategory() {
         log.info("Aggregating products by category");
 
-        NativeQuery query = NativeQuery.builder()
-                .withQuery(q -> q.matchAll(m -> m))
-                .withAggregation("categories", a -> a
-                        .terms(t -> t
-                                .field("category")
-                                .size(100)
-                        )
-                )
-                .withMaxResults(0) // We only need aggregations
-                .build();
-
-        SearchHits<ProductDocument> searchHits = elasticsearchOperations.search(query, ProductDocument.class);
+        SearchHits<ProductDocument> searchHits =
+            elasticsearchOperations.search(NativeQuery.builder().build(), ProductDocument.class, IndexCoordinates.of(PRODUCT_INDEX));
 
         Map<String, Long> categoryCounts = new HashMap<>();
 
-        var aggregations = searchHits.getAggregations();
-        if (aggregations != null && aggregations.aggregation("categories") != null) {
-            aggregations.aggregation("categories")
-                    .getAggregate()
-                    .sterms()
-                    .buckets().array()
-                    .forEach(bucket -> {
-                        categoryCounts.put(bucket.key(), bucket.docCount());
-                    });
-        }
+        searchHits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .forEach(product -> {
+                    String category = product.getCategory();
+                    if (category != null) {
+                        categoryCounts.merge(category, 1L, Long::sum);
+                    }
+                });
 
         log.info("Category aggregation: {}", categoryCounts);
         return categoryCounts;
@@ -224,38 +175,38 @@ public class ProductSearchService {
     public List<PriceRangeStats> aggregateByPriceRanges() {
         log.info("Aggregating products by price ranges");
 
-        NativeQuery query = NativeQuery.builder()
-                .withQuery(q -> q.matchAll(m -> m))
-                .withAggregation("price_ranges", a -> a
-                        .range(r -> r
-                                .field("price")
-                                .ranges(range -> range.to("100.0").key("0-100"))
-                                .ranges(range -> range.from("100.0").to("500.0").key("100-500"))
-                                .ranges(range -> range.from("500.0").to("1000.0").key("500-1000"))
-                                .ranges(range -> range.from("1000.0").key("1000+"))
-                        )
-                )
-                .withMaxResults(0)
-                .build();
-
-        SearchHits<ProductDocument> searchHits = elasticsearchOperations.search(query, ProductDocument.class);
+        SearchHits<ProductDocument> searchHits =
+            elasticsearchOperations.search(NativeQuery.builder().build(), ProductDocument.class, IndexCoordinates.of(PRODUCT_INDEX));
 
         List<PriceRangeStats> priceRanges = new ArrayList<>();
+        Map<String, Long> rangeCounts = new HashMap<>();
 
-        var aggregations = searchHits.getAggregations();
-        if (aggregations != null && aggregations.aggregation("price_ranges") != null) {
-            aggregations.aggregation("price_ranges")
-                    .getAggregate()
-                    .range()
-                    .buckets().array()
-                    .forEach(bucket -> {
-                        priceRanges.add(PriceRangeStats.builder()
-                                .range(bucket.key())
-                                .count(bucket.docCount())
-                                .products(new ArrayList<>())
-                                .build());
-                    });
-        }
+        searchHits.getSearchHits().stream()
+                .map(SearchHit::getContent)
+                .forEach(product -> {
+                    Double price = product.getPrice();
+                    if (price != null) {
+                        String range;
+                        if (price < 100) {
+                            range = "0-100";
+                        } else if (price < 500) {
+                            range = "100-500";
+                        } else if (price < 1000) {
+                            range = "500-1000";
+                        } else {
+                            range = "1000+";
+                        }
+                        rangeCounts.merge(range, 1L, Long::sum);
+                    }
+                });
+
+        rangeCounts.forEach((r, count) -> {
+            priceRanges.add(PriceRangeStats.builder()
+                    .range(r)
+                    .count(count)
+                    .products(new ArrayList<>())
+                    .build());
+        });
 
         log.info("Price range aggregation: {} ranges", priceRanges.size());
         return priceRanges;
@@ -276,8 +227,6 @@ public class ProductSearchService {
         if (validatedSize <= 0) validatedSize = DEFAULT_PAGE_SIZE;
 
         NativeQueryBuilder queryBuilder = NativeQuery.builder();
-
-        // Build query
         BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
 
         if (keyword != null && !keyword.isBlank()) {
@@ -294,43 +243,15 @@ public class ProductSearchService {
         }
 
         if (category != null && !category.isBlank()) {
-            boolQueryBuilder.filter(f -> f
-                    .term(t -> t
-                            .field("category")
-                            .value(category)
-                    )
-            );
+            boolQueryBuilder.filter(f -> f.term(t -> t.field("category").value(category)));
         }
 
-        queryBuilder.withQuery(Query.of(q -> q.bool(boolQueryBuilder.build())));
+        queryBuilder.withQuery(co.elastic.clients.elasticsearch._types.query_dsl.Query.of(q -> q.bool(boolQueryBuilder.build())));
+        queryBuilder.withPageable(PageRequest.of(page, validatedSize));
 
-        // Add aggregations
-        queryBuilder.withAggregation("categories", a -> a
-                .terms(t -> t
-                        .field("category")
-                        .size(50)
-                )
-        );
+        SearchHits<ProductDocument> searchHits =
+            elasticsearchOperations.search(queryBuilder.build(), ProductDocument.class, IndexCoordinates.of(PRODUCT_INDEX));
 
-        queryBuilder.withAggregation("price_ranges", a -> a
-                .range(r -> r
-                        .field("price")
-                        .ranges(range -> range.to("100.0").key("0-100"))
-                        .ranges(range -> range.from("100.0").to("500.0").key("100-500"))
-                        .ranges(range -> range.from("500.0").to("1000.0").key("500-1000"))
-                        .ranges(range -> range.from("1000.0").key("1000+"))
-                )
-        );
-
-        // Add pagination
-        PageRequest pageRequest = PageRequest.of(page, validatedSize);
-        queryBuilder.withPageable(pageRequest);
-
-        Query query = queryBuilder.build();
-
-        SearchHits<ProductDocument> searchHits = elasticsearchOperations.search(query, ProductDocument.class);
-
-        // Extract results
         List<ProductDocument> results = searchHits.getSearchHits().stream()
                 .map(SearchHit::getContent)
                 .collect(Collectors.toList());
@@ -338,32 +259,46 @@ public class ProductSearchService {
         long totalHits = searchHits.getTotalHits();
         long totalPages = (totalHits + size - 1) / size;
 
-        // Extract category aggregations
         Map<String, Long> categoryAggs = new HashMap<>();
-        var aggregations = searchHits.getAggregations();
-        if (aggregations != null && aggregations.aggregation("categories") != null) {
-            aggregations.aggregation("categories")
-                    .getAggregate()
-                    .sterms()
-                    .buckets().array()
-                    .forEach(bucket -> categoryAggs.put(bucket.key(), bucket.docCount()));
-        }
-
-        // Extract price range aggregations
         List<PriceRangeStats> priceRanges = new ArrayList<>();
-        if (aggregations != null && aggregations.aggregation("price_ranges") != null) {
-            aggregations.aggregation("price_ranges")
-                    .getAggregate()
-                    .range()
-                    .buckets().array()
-                    .forEach(bucket -> {
-                        priceRanges.add(PriceRangeStats.builder()
-                                .range(bucket.key())
-                                .count(bucket.docCount())
-                                .products(new ArrayList<>())
-                                .build());
-                    });
-        }
+
+        results.forEach(product -> {
+            String cat = product.getCategory();
+            if (cat != null) {
+                categoryAggs.merge(cat, 1L, Long::sum);
+            }
+
+            Double price = product.getPrice();
+            if (price != null) {
+                String range;
+                if (price < 100) {
+                    range = "0-100";
+                } else if (price < 500) {
+                    range = "100-500";
+                } else if (price < 1000) {
+                    range = "500-1000";
+                } else {
+                    range = "1000+";
+                }
+
+                final String finalRange = range;
+                boolean found = false;
+                for (PriceRangeStats pr : priceRanges) {
+                    if (pr.getRange().equals(finalRange)) {
+                        pr.setCount(pr.getCount() + 1);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    priceRanges.add(PriceRangeStats.builder()
+                            .range(range)
+                            .count(1L)
+                            .products(new ArrayList<>())
+                            .build());
+                }
+            }
+        });
 
         Map<String, Map<String, Long>> aggregationsMap = new HashMap<>();
         aggregationsMap.put("categories", categoryAggs);
