@@ -6,14 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface ProductDocumentRepository extends ElasticsearchRepository<ProductDocument, String> {
-
-    List<ProductDocument> findByName(String name);
-    Page<ProductDocument> findByCategory(String category, Pageable pageable);
-    Page<ProductDocument> findByPriceBetween(Double min, Double max, Pageable pageable);
+public interface ProductElasticsearchRepository extends ElasticsearchRepository<ProductDocument, String> {
 
     Page<ProductDocument> findByNameContainingOrDescriptionContaining(
             String name, String description, Pageable pageable
@@ -22,4 +16,8 @@ public interface ProductDocumentRepository extends ElasticsearchRepository<Produ
     Page<ProductDocument> findByCategoryAndPriceLessThanEqual(
             String category, Double maxPrice, Pageable pageable
     );
+
+    Page<ProductDocument> findByCategory(String category, Pageable pageable);
+
+    Page<ProductDocument> findByPriceBetween(Double min, Double max, Pageable pageable);
 }
