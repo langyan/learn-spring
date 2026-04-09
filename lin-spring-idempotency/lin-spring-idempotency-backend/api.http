@@ -1,0 +1,35 @@
+@baseUrl = http://localhost:8086
+@idempotencyKey = demo-key-001
+
+### Create order
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKey}}
+
+{
+  "customerId": "user-001",
+  "productName": "Mechanical Keyboard",
+  "quantity": 1
+}
+
+### Create order again with same key
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKey}}
+
+{
+  "customerId": "user-001",
+  "productName": "Mechanical Keyboard",
+  "quantity": 1
+}
+
+### Create order with conflicting payload
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Idempotency-Key: {{idempotencyKey}}
+
+{
+  "customerId": "user-001",
+  "productName": "Noise Cancelling Headphones",
+  "quantity": 2
+}

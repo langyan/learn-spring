@@ -33,6 +33,7 @@
         <option value="$PROJECT_DIR$/lin-spring-liquibase/pom.xml" />
         <option value="$PROJECT_DIR$/lin-spring-microservices/pom.xml" />
         <option value="$PROJECT_DIR$/lin-spring-elasticsearch/pom.xml" />
+        <option value="$PROJECT_DIR$/lin-spring-idempotency/lin-spring-idempotency-backend/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

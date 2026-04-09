@@ -65,6 +65,8 @@ Desktop.ini
 *.zip
 *.tar.gz
 *.rar
+node_modules/
+dist/
 
 # Spring Boot
 spring-boot-*.log

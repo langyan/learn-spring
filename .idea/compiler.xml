@@ -45,6 +45,25 @@
         <module name="lin-spring-file-upload" />
         <module name="lin-spring-jpa" />
       </profile>
+      <profile name="Annotation profile for lin-spring-tenant" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/../../repository/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
+        </processorPath>
+        <module name="lin-spring-mongodb" />
+        <module name="lin-spring-idempotency-backend" />
+        <module name="lin-spring-tenant" />
+        <module name="lin-spring-liquibase" />
+        <module name="lin-spring-otp" />
+        <module name="lin-spring-restful-version" />
+        <module name="lin-spring-resilience4j-bulkhead" />
+        <module name="lin-spring-elasticsearch" />
+        <module name="lin-spring-bean-lifecycle" />
+        <module name="lin-spring-jackson-deserialization" />
+        <module name="lin-spring-flyway" />
+      </profile>
       <profile name="Annotation profile for lin-spring-transactional" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -57,24 +76,6 @@
         <module name="lin-spring-transactional" />
         <module name="lin-spring-redis" />
         <module name="lin-spring-jpa-specification" />
-      </profile>
-      <profile name="Annotation profile for lin-spring-elasticsearch" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$PROJECT_DIR$/../../repository/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
-        </processorPath>
-        <module name="lin-spring-mongodb" />
-        <module name="lin-spring-tenant" />
-        <module name="lin-spring-liquibase" />
-        <module name="lin-spring-otp" />
-        <module name="lin-spring-restful-version" />
-        <module name="lin-spring-resilience4j-bulkhead" />
-        <module name="lin-spring-elasticsearch" />
-        <module name="lin-spring-bean-lifecycle" />
-        <module name="lin-spring-jackson-deserialization" />
-        <module name="lin-spring-flyway" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -107,6 +108,7 @@
       <module name="lin-spring-flyway" options="-parameters" />
       <module name="lin-spring-greetings-api-reactive" options="-parameters" />
       <module name="lin-spring-greetings-api-web" options="-parameters" />
+      <module name="lin-spring-idempotency-backend" options="-parameters" />
       <module name="lin-spring-jackson-deserialization" options="-parameters" />
       <module name="lin-spring-jpa" options="-parameters" />
       <module name="lin-spring-jpa-specification" options="-parameters" />

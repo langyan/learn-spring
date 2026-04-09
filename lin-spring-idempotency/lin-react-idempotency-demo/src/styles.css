@@ -1,0 +1,157 @@
+:root {
+  color: #e5eef8;
+  background: #0f172a;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.2), transparent 28%),
+    linear-gradient(180deg, #0f172a 0%, #111827 100%);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  color: #fff;
+  background: #2563eb;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+input {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  padding: 0.8rem 0.9rem;
+  background: rgba(15, 23, 42, 0.6);
+  color: #e2e8f0;
+}
+
+code,
+pre {
+  font-family: 'Cascadia Code', Consolas, monospace;
+}
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 3rem;
+}
+
+.hero {
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #7dd3fc;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+}
+
+.summary {
+  max-width: 860px;
+  color: #cbd5e1;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  padding: 1.25rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.3);
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.card label {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.inline {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.error {
+  margin-top: 1rem;
+  color: #fca5a5;
+}
+
+pre {
+  margin: 0;
+  padding: 1rem;
+  min-height: 180px;
+  overflow: auto;
+  white-space: pre-wrap;
+  border-radius: 16px;
+  background: rgba(2, 6, 23, 0.9);
+  color: #bfdbfe;
+}
+
+.logList {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #cbd5e1;
+}
+
+.logList li + li {
+  margin-top: 0.6rem;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 1.25rem 0.9rem 2rem;
+  }
+
+  .inline {
+    flex-direction: column;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}
