@@ -1,0 +1,66 @@
+### Login as user
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "Password123!"
+}
+
+### Login as admin
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "Admin123!"
+}
+
+### Access protected ping endpoint
+GET http://localhost:8080/api/protected/ping
+Authorization: Bearer {{userToken}}
+
+### Get current profile
+GET http://localhost:8080/api/users/me
+Authorization: Bearer {{userToken}}
+
+### Update profile and verify XSS sanitization
+PUT http://localhost:8080/api/users/profile
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "displayName": "<script>alert('xss')</script>Alice",
+  "bio": "<img src=x onerror=alert('xss')>secure bio"
+}
+
+### Verify sanitized profile
+GET http://localhost:8080/api/users/profile
+Authorization: Bearer {{userToken}}
+
+### Admin query with safe filters
+GET http://localhost:8080/api/admin/users?email=example&role=USER&sortBy=username&direction=asc&page=0&size=10
+Authorization: Bearer {{adminToken}}
+
+### Admin audit endpoint
+GET http://localhost:8080/api/admin/audit
+Authorization: Bearer {{adminToken}}
+
+### Trigger login failures
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "wrong-password"
+}
+
+### Trigger rate limit by repeating this request quickly
+GET http://localhost:8080/api/protected/ping
+Authorization: Bearer {{userToken}}
+
+### Check Prometheus metrics
+GET http://localhost:8080/actuator/prometheus
+
+### Check custom failure metric
+GET http://localhost:8080/actuator/metrics/security.auth.failure.total

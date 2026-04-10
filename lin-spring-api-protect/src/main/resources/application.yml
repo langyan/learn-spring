@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: lin-spring-api-protect
+  datasource:
+    url: jdbc:h2:mem:apiprotect;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: never
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+app:
+  security:
+    jwt:
+      secret: change-this-demo-secret-change-this-demo-secret
+      expiration-minutes: 30
+    cors:
+      allowed-origins:
+        - http://localhost:3000
+        - http://localhost:5173
+    login:
+      lock-threshold: 5
+      lock-duration-minutes: 15
+    rate-limit:
+      login:
+        permits: 5
+        window-seconds: 60
+      api:
+        permits: 60
+        window-seconds: 60
+      admin:
+        permits: 20
+        window-seconds: 60
