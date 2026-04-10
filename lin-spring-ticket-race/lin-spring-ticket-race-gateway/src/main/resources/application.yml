@@ -1,0 +1,55 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ticket-race-gateway
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: event-service-routes
+          uri: lb://ticket-race-event-service
+          predicates:
+            - Path=/api/events,/api/shows/**
+        - id: booking-service-routes
+          uri: lb://ticket-race-booking-service
+          predicates:
+            - Path=/api/bookings/**,/api/admin/metrics/**,/api/admin/expiry/**
+        - id: payment-service-routes
+          uri: lb://ticket-race-payment-service
+          predicates:
+            - Path=/api/payments/**
+        - id: simulator-service-routes
+          uri: lb://ticket-race-simulator
+          predicates:
+            - Path=/api/admin/simulator/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway

@@ -1,0 +1,26 @@
+services:
+  postgres-event:
+    image: postgres:16-alpine
+    container_name: ticket-race-event-db
+    environment:
+      POSTGRES_DB: ticket_race_event
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  postgres-booking:
+    image: postgres:16-alpine
+    container_name: ticket-race-booking-db
+    environment:
+      POSTGRES_DB: ticket_race_booking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: ticket-race-redis
+    ports:
+      - "6379:6379"

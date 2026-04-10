@@ -1,0 +1,22 @@
+server:
+  port: 8093
+
+spring:
+  application:
+    name: ticket-race-payment-service
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

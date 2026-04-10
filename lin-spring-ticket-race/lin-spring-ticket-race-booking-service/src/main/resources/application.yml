@@ -1,0 +1,44 @@
+server:
+  port: 8092
+
+spring:
+  application:
+    name: ticket-race-booking-service
+  datasource:
+    url: ${BOOKING_DB_URL:jdbc:postgresql://localhost:5433/ticket_race_booking}
+    username: ${BOOKING_DB_USERNAME:postgres}
+    password: ${BOOKING_DB_PASSWORD:postgres}
+  data:
+    redis:
+      host: ${BOOKING_REDIS_HOST:localhost}
+      port: ${BOOKING_REDIS_PORT:6379}
+      timeout: 2s
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+ticket-race:
+  payment:
+    service-id: ${PAYMENT_SERVICE_ID:ticket-race-payment-service}
+  expiry:
+    scan-delay-ms: 5000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus

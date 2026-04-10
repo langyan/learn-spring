@@ -70,3 +70,6 @@ dist/
 
 # Spring Boot
 spring-boot-*.log
+
+# http client configuration
+*.env.json

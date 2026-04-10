@@ -1,0 +1,123 @@
+### Discovery dashboard
+GET http://localhost:8761
+
+### Gateway: list events
+GET http://localhost:8080/api/events
+
+### Gateway: list seats
+GET http://localhost:8080/api/shows/show-2026-07-01/seats
+
+### Event service: list events
+GET http://localhost:8091/api/events
+
+### Event service: list seats
+GET http://localhost:8091/api/shows/show-2026-07-01/seats
+
+### Booking service: hold seat with pessimistic lock
+POST http://localhost:8092/api/bookings/hold
+Content-Type: application/json
+
+{
+  "userId": "alice",
+  "showId": "show-2026-07-01",
+  "seatCode": "A-1",
+  "strategy": "PESSIMISTIC",
+  "holdSeconds": 120
+}
+
+### Gateway: hold seat with pessimistic lock
+POST http://localhost:8080/api/bookings/hold
+Content-Type: application/json
+
+{
+  "userId": "gateway-alice",
+  "showId": "show-2026-07-01",
+  "seatCode": "A-4",
+  "strategy": "PESSIMISTIC",
+  "holdSeconds": 120
+}
+
+### Booking service: hold seat with optimistic lock
+POST http://localhost:8092/api/bookings/hold
+Content-Type: application/json
+
+{
+  "userId": "bob",
+  "showId": "show-2026-07-01",
+  "seatCode": "A-2",
+  "strategy": "OPTIMISTIC",
+  "holdSeconds": 120
+}
+
+### Booking service: hold seat with redis lock
+POST http://localhost:8092/api/bookings/hold
+Content-Type: application/json
+
+{
+  "userId": "carol",
+  "showId": "show-2026-07-01",
+  "seatCode": "A-3",
+  "strategy": "REDIS_HOLD",
+  "holdSeconds": 120
+}
+
+### Payment service: simulate success
+POST http://localhost:8093/api/payments/simulate
+Content-Type: application/json
+
+{
+  "bookingNo": "BOOK-REPLACE-ME",
+  "delayMillis": 0,
+  "forceFailure": false,
+  "forceTimeout": false
+}
+
+### Booking service: pay booking
+POST http://localhost:8092/api/bookings/BOOK-REPLACE-ME/pay
+Content-Type: application/json
+
+{
+  "bookingNo": "BOOK-REPLACE-ME",
+  "delayMillis": 0,
+  "forceFailure": false,
+  "forceTimeout": false
+}
+
+### Booking service: get booking
+GET http://localhost:8092/api/bookings/BOOK-REPLACE-ME
+
+### Booking service: cancel booking
+POST http://localhost:8092/api/bookings/BOOK-REPLACE-ME/cancel
+
+### Booking service: scan expired holds
+POST http://localhost:8092/api/admin/expiry/scan
+
+### Booking service: race metrics
+GET http://localhost:8092/api/admin/metrics/race-summary
+
+### Gateway: race metrics
+GET http://localhost:8080/api/admin/metrics/race-summary
+
+### Simulator: run concurrent race
+POST http://localhost:8094/api/admin/simulator/run
+Content-Type: application/json
+
+{
+  "showId": "show-2026-07-01",
+  "seatCode": "A-1",
+  "concurrency": 100,
+  "strategy": "OPTIMISTIC",
+  "holdSeconds": 30
+}
+
+### Gateway: run concurrent race
+POST http://localhost:8080/api/admin/simulator/run
+Content-Type: application/json
+
+{
+  "showId": "show-2026-07-01",
+  "seatCode": "A-5",
+  "concurrency": 100,
+  "strategy": "OPTIMISTIC",
+  "holdSeconds": 30
+}

@@ -54,7 +54,7 @@ cd lin-spring-{module-name}
 ### Key Dependencies and Versions
 
 - **Spring Boot**: Multiple versions (3.4.4, 3.5.0, 3.5.3) across modules
-- **Java**: Java 17 or 21 depending on module
+- **Java**: Java  21 depending on module
 - **Lombok**: Used extensively for reducing boilerplate code
 - **DevTools**: Included for development hot-reload
 - **Testing**: Spring Boot Test with JUnit 5
