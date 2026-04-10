@@ -1,0 +1,22 @@
+### Create an order
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "productId": "PROD-001"
+}
+
+### Get an order (replace {id} with actual orderId)
+GET http://localhost:8080/orders/ORD-1775783085188
+
+### Complete an order
+DELETE http://localhost:8080/orders/ORD-1775783085188
+
+### Check Prometheus metrics endpoint
+GET http://localhost:8080/actuator/prometheus
+
+### Check specific metric
+GET http://localhost:8080/actuator/metrics/orders.created.total
+
+### Check health
+GET http://localhost:8080/actuator/health
