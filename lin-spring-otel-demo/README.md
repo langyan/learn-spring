@@ -426,7 +426,7 @@ docker-compose up -d --build
 
 1. **触发业务请求：**
    打开浏览器或使用 curl 访问几次 Spring Boot 接口：
-   `http://localhost:8080/api/hello`
+   `http://localhost:8080/api/orders`
 
 2. **验证 OpenTelemetry Collector 接收：**
    查看 Collector 日志，你应该能看到接收到的 Metrics 和 Traces 输出（因为我们配置了 `logging` exporter）：
@@ -442,3 +442,16 @@ docker-compose up -d --build
    http_server_requests_seconds_count{application="demo-service", environment="demo", exported_job="demo-service", instance="otel-collector:8889", job="otel-collector", method="GET", status="200", uri="/api/hello"}
    ```
    *注意 `environment="demo"` 这个标签是我们通过 Collector 的 resource processor 统一加上的，应用端并没有这个配置，体现了解耦的优势。*
+4. 查看可视化：
+
+-- 打开 Grafana: http://localhost:3000。
+
+-- 点击左侧菜单 Explore，确认数据源已选择 Prometheus。
+
+-- 输入查询语句：http_server_requests_seconds_count，点击右上角 Run Query 即可看到波形图。
+
+5. 推荐看板：
+
+-- Grafana 官方有一个非常棒的 Spring Boot 仪表盘。
+
+-- 在 Grafana 中点击 + -> Import，输入 ID 19022 (基于 Micrometer) 或 4701，即可获得专业级的监控大屏。
