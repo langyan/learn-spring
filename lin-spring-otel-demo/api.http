@@ -1,0 +1,41 @@
+### Create an order
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "itemName": "MacBook Pro",
+  "category": "electronics",
+  "amount": 1999.99
+}
+
+### Create another order
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "itemName": "Spring Boot in Action",
+  "category": "books",
+  "amount": 39.99
+}
+
+### Get order by ID
+GET http://localhost:8080/api/orders/{{orderId}}
+Accept: application/json
+
+### List all orders
+GET http://localhost:8080/api/orders
+Accept: application/json
+
+### Complete an order
+PUT http://localhost:8080/api/orders/{{orderId}}/complete
+Accept: application/json
+
+### Check health
+GET http://localhost:8080/actuator/health
+
+### Check Prometheus metrics
+GET http://localhost:8080/actuator/prometheus
+Accept: text/plain
+
+### Check info
+GET http://localhost:8080/actuator/info

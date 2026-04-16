@@ -26,6 +26,7 @@ The repository is organized as multiple independent Maven modules, each demonstr
 - **lin-spring-file-upload** - File upload handling
 - **lin-spring-jackson-deserialization** - Jackson polymorphic deserialization
 - **lin-spring-micrometer** - Application metrics with Micrometer
+- **lin-spring-otel-demo** - OpenTelemetry tracing, Micrometer metrics, and Prometheus export demo
 - **lin-spring-loki** - Logging with Loki
 - **lin-spring-k8s** - Kubernetes deployment examples
 - **lin-spring-docker-images** - Docker containerization

@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: lin-spring-otel-demo
+
+server:
+  port: 8080
+
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  otlp:
+    metrics:
+      export:
+        # 指向 OTel Collector 的 OTLP/HTTP 接收端口
+        url: http://otel-collector:4318/v1/metrics
+        step: 10s # 每10秒推送一次
+    tracing:
+      export:
+        url: http://otel-collector:4318/v1/traces
+  tracing:
+    sampling:
+      probability: 1.0 # 采样率，生产环境建议调低，如 0.1

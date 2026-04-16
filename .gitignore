@@ -73,3 +73,9 @@ spring-boot-*.log
 
 # http client configuration
 *.env.json
+
+/.claude
+
+/openspec
+
+/.idea
