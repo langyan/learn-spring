@@ -444,14 +444,14 @@ docker-compose up -d --build
    *注意 `environment="demo"` 这个标签是我们通过 Collector 的 resource processor 统一加上的，应用端并没有这个配置，体现了解耦的优势。*
 4. 查看可视化：
 
--- 打开 Grafana: http://localhost:3000。
+  * 打开 Grafana: http://localhost:3000。
 
--- 点击左侧菜单 Explore，确认数据源已选择 Prometheus。
+  * 点击左侧菜单 Explore，确认数据源已选择 Prometheus。
 
--- 输入查询语句：http_server_requests_seconds_count，点击右上角 Run Query 即可看到波形图。
+  * 输入查询语句：http_server_requests_seconds_count，点击右上角 Run Query 即可看到波形图。
 
 5. 推荐看板：
 
--- Grafana 官方有一个非常棒的 Spring Boot 仪表盘。
+  * Grafana 官方有一个非常棒的 Spring Boot 仪表盘。
 
--- 在 Grafana 中点击 + -> Import，输入 ID 19022 (基于 Micrometer) 或 4701，即可获得专业级的监控大屏。
+  * 在 Grafana 中点击 + -> Import，输入 ID 19022 (基于 Micrometer) 或 4701，即可获得专业级的监控大屏。
