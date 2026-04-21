@@ -1,0 +1,14 @@
+### 创建订单（同事务写入 Outbox）
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Alice",
+  "amount": 199.99
+}
+
+### 查看待投递 Outbox
+GET http://localhost:8080/api/outbox/pending
+
+### 查询订单
+GET http://localhost:8080/api/orders/1
