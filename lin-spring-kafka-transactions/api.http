@@ -1,0 +1,10 @@
+### Kafka 事务：提交（双 Topic 均应对 read_committed 可见）
+POST http://localhost:8095/api/tx/commit/manual-demo-1
+Accept: application/json
+
+###
+### Kafka 事务：中止（发送后抛错，消费者不应看到）
+POST http://localhost:8095/api/tx/rollback/manual-demo-2
+Accept: application/json
+
+###

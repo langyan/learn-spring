@@ -1,0 +1,14 @@
+spring:
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
+    consumer:
+      group-id: kafkatx-embedded-test
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      properties:
+        isolation.level: read_committed
+    producer:
+      acks: all
+      transaction-id-prefix: kafkatx-embedded-
+      properties:
+        enable.idempotence: true

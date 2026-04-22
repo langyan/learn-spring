@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: lin-spring-kafka-transactions
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: kafkatx-demo
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      properties:
+        isolation.level: read_committed
+    producer:
+      acks: all
+      transaction-id-prefix: kafkatx-demo-
+      properties:
+        enable.idempotence: true
+
+server:
+  port: 8095
+
+logging:
+  level:
+    org.apache.kafka: warn
+    com.lin.spring.kafkatx: info
