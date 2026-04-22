@@ -1,0 +1,40 @@
+# 分片与雪花 ID（生产环境请改为 ddl-auto: none + 独立迁移工具）
+app:
+  sharding:
+    shard-count: 3
+    virtual-nodes: 100
+    snowflake-epoch-ms: 1704067200000
+    datasources:
+      "0":
+        jdbc-url: jdbc:h2:mem:shard0;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        username: sa
+        password: ""
+      "1":
+        jdbc-url: jdbc:h2:mem:shard1;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        username: sa
+        password: ""
+      "2":
+        jdbc-url: jdbc:h2:mem:shard2;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        username: sa
+        password: ""
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        # 路由数据源在启动期无法可靠暴露底层 jdbc url，显式方言避免无法解析元数据
+        dialect: org.hibernate.dialect.H2Dialect
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 30000
+
+logging:
+  level:
+    com.lin.spring.sharding: INFO

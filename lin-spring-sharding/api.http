@@ -1,0 +1,11 @@
+### 创建用户（按 email 一致哈希路由分片）
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+  "email": "alice@example.com"
+}
+
+### 按雪花 ID 读取（从 ID 解析分片）
+@id = 0
+GET http://localhost:8080/users/{{id}}
