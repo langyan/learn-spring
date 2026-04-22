@@ -13,7 +13,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * 订阅双 Topic，将已提交消息写入阻塞队列，供集成测试或观测使用。
+ * 订阅演示 Topic，将已提交消息写入阻塞队列，供集成测试或观测使用。
  */
 @Slf4j
 @Component
@@ -30,7 +30,11 @@ public class DemoEventsListener {
 	}
 
 	@KafkaListener(
-		topics = {KafkaTxTopics.DEMO_TX_A, KafkaTxTopics.DEMO_TX_B},
+		topics = {
+			KafkaTxTopics.DEMO_TX_A,
+			KafkaTxTopics.DEMO_TX_B,
+			KafkaTxTopics.DEMO_TX_DB
+		},
 		containerFactory = "kafkaListenerContainerFactory"
 	)
 	public void onMessage(

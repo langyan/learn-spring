@@ -1,6 +1,15 @@
 spring:
   application:
     name: lin-spring-kafka-transactions
+  datasource:
+    url: jdbc:h2:mem:kafkatx;MODE=LEGACY;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: false
   kafka:
     bootstrap-servers: localhost:9092
     consumer:

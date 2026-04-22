@@ -8,3 +8,23 @@ POST http://localhost:8095/api/tx/rollback/manual-demo-2
 Accept: application/json
 
 ###
+### 声明式：@Transactional + kafkaTransactionManager — 提交（value 后缀 |c / |d）
+POST http://localhost:8095/api/tx/declarative/commit/manual-demo-3
+Accept: application/json
+
+###
+### 声明式：@Transactional + kafkaTransactionManager — 中止
+POST http://localhost:8095/api/tx/declarative/rollback/manual-demo-4
+Accept: application/json
+
+###
+### 链式：JPA 写库 + Kafka（ChainedTransactionManager）— 提交
+POST http://localhost:8095/api/tx/db-kafka/commit/manual-demo-5
+Accept: application/json
+
+###
+### 链式：JPA 写库 + Kafka — 中止
+POST http://localhost:8095/api/tx/db-kafka/rollback/manual-demo-6
+Accept: application/json
+
+###

@@ -13,4 +13,7 @@ public final class KafkaTxTopics {
 
 	/** 事务演示 Topic B */
 	public static final String DEMO_TX_B = "demo-tx-b";
+
+	/** 链式「库表 + Kafka」演示 Topic */
+	public static final String DEMO_TX_DB = "demo-tx-db";
 }
