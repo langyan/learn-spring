@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: executor-service
+  profiles:
+    default: mysql
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        linger.ms: 5
+        compression.type: lz4
+    consumer:
+      group-id: job-executor
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      max-poll-records: 500
+    listener:
+      # 手动 ACK：处理完成后才提交位移（至少一次语义）
+      ack-mode: manual_immediate
+      concurrency: 6
+
+server:
+  port: 8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+scheduler:
+  # 执行期间每 10s 更新 JobRun.modified_time（心跳）
+  heartbeat-interval-ms: 10000
+  # 瞬时失败重推 jobs.retry 前的退避（0 便于压测观察吞吐）
+  retry-backoff-ms: 0
+  topics:
+    partitions: 12

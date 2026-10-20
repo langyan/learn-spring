@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.lin.spring.scheduler</groupId>
+	<artifactId>lin-spring-job-scheduler</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>lin-spring-job-scheduler</name>
+	<description>High-throughput distributed job scheduler demo (10k+ jobs/s): Kafka backbone, Redis fast-state checks, Watcher/Executor decoupled microservices</description>
+
+	<properties>
+		<java.version>21</java.version>
+		<spring-boot.version>4.0.0</spring-boot.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<!-- 聚合器：仅聚合 4 个子模块；各子模块直接继承 spring-boot-starter-parent（符合仓库"无父 POM"惯例） -->
+	<modules>
+		<module>job-scheduler-common</module>
+		<module>job-api-service</module>
+		<module>watcher-service</module>
+		<module>executor-service</module>
+	</modules>
+</project>

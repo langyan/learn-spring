@@ -18,6 +18,8 @@ The repository is organized as multiple independent Maven modules, each demonstr
 - **lin-spring-bean-lifecycle** - Spring bean lifecycle management
 - **lin-spring-jpa** - JPA and Hibernate integration
 - **lin-spring-security-dao-auth** - Security with JWT and database authentication
+- **lin-spring-security-jwt** - Spring Boot 4 + Security 7 production demo: slim-token JWT authentication (identity-only, JJWT 0.13) + Redis-cached RBAC authorities (cache-aside, DB fallback, evict-on-change) + path/method-level authorization
+- **lin-spring-shiro-jwt** - Same slim-token + Redis-authorities architecture as lin-spring-security-jwt, with Apache Shiro 3.0 (Jakarta-native, no classifier needed) replacing Spring Security: JwtRealm/JwtFilter/ShiroFilterFactoryBean + @RequiresPermissions/@RequiresRoles annotation authorization
 - **lin-spring-redis** - Redis caching and pub/sub
 - **lin-spring-mongodb** - MongoDB integration
 - **lin-spring-otp** - OTP authentication system
@@ -27,6 +29,9 @@ The repository is organized as multiple independent Maven modules, each demonstr
 - **lin-spring-jackson-deserialization** - Jackson polymorphic deserialization
 - **lin-spring-micrometer** - Application metrics with Micrometer
 - **lin-spring-otel-demo** - OpenTelemetry tracing, Micrometer metrics, and Prometheus export demo
+- **lin-spring-outbox** - Transactional Outbox（同事务写库 + 轮询中继；可选 kafka profile）
+- **lin-spring-notification** - 千万级通知系统（Kafka 异步投递、Redis 幂等、优先级 Topic、Mock Provider）
+- **lin-spring-webhook** - Webhook 投递系统（指数退避重试与 DLQ、租户隔离与熔断、SSRF/DNS Rebinding 防护、事件级幂等）
 - **lin-spring-loki** - Logging with Loki
 - **lin-spring-k8s** - Kubernetes deployment examples
 - **lin-spring-docker-images** - Docker containerization

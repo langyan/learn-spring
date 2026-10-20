@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: watcher-service
+  profiles:
+    default: mysql
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        linger.ms: 5
+        compression.type: lz4
+
+server:
+  port: 8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+scheduler:
+  # 轮询间隔 20s，拉取 [lastPollTime, now + 5s] 的 PENDING 作业
+  poll-interval-ms: 20000
+  poll-ahead-ms: 5000
+  poll-batch-size: 10000
+  publish-timeout-seconds: 60
+  # 僵尸侦测：RUNNING 且心跳超 20s 未更新
+  zombie-check-interval-ms: 20000
+  zombie-stale-after-ms: 20000
+  # mysql（默认）用 SELECT ... FOR UPDATE SKIP LOCKED，支持多实例水平扩展
+  skip-locked: true
+  topics:
+    partitions: 12

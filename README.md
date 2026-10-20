@@ -66,6 +66,10 @@ spring init --boot-version=3.5.3 --build=maven --java-version=21 --dependencies=
 
 spring init --boot-version=3.4.4 --build=maven --java-version=17 --dependencies=jpa,lombok,web,validation,devtools,h2 --packaging=jar --a=lin-spring-transactional --g=com.lin.spring.transactional --package-name=com.lin.spring.transactional  -n=lin-spring-transactional lin-spring-transactional
 
+# Spring Boot 4 + JWT 认证 + RBAC 授权（Java 21）
+# 注意：Boot 4 模块化后 web starter 更名为 webmvc；Jackson 默认 3.x（tools.jackson 包名）；MockMvc 测试需额外依赖 spring-boot-starter-webmvc-test
+spring init --boot-version=4.0.0 --build=maven --java-version=21 --dependencies=webmvc,security,data-jpa,validation,devtools,h2,lombok  --packaging=jar --a=lin-spring-security-jwt --g=com.lin.spring.security --package-name=com.lin.spring.security  -n=lin-spring-security-jwt lin-spring-security-jwt
+
 
 # docker 启动
 - docker-compose up -d  # 重新启动服务

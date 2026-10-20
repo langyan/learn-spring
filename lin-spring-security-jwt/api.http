@@ -1,0 +1,102 @@
+### =====================================================
+### lin-spring-security-jwt - manual API test flow
+### Start the app first: .\mvnw.cmd spring-boot:run
+### =====================================================
+
+@host = http://localhost:8080
+
+### 1. Login as admin -> copy accessToken from the response
+# @name adminLogin
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+### 2. Login as normal user
+# @name userLogin
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "user123"
+}
+
+### 3. Current user info (admin token) -> 200
+GET {{host}}/api/v1/users/me
+Authorization: Bearer {{adminLogin.response.body.accessToken}}
+
+### 4. List users - method level @PreAuthorize("hasAuthority('user:read')") (user token) -> 200
+GET {{host}}/api/v1/users
+Authorization: Bearer {{userLogin.response.body.accessToken}}
+
+### 5. Delete user - needs "user:write" (user token, only admin has it) -> 403
+DELETE {{host}}/api/v1/users/99
+Authorization: Bearer {{userLogin.response.body.accessToken}}
+
+### 6. Delete user - admin token -> 400 (id 99 does not exist, but authorization passed)
+DELETE {{host}}/api/v1/users/99
+Authorization: Bearer {{adminLogin.response.body.accessToken}}
+
+### 7. Admin stats - URL rule hasRole("ADMIN") (admin token) -> 200
+GET {{host}}/api/v1/admin/stats
+Authorization: Bearer {{adminLogin.response.body.accessToken}}
+
+### 8. Admin stats - URL rule hasRole("ADMIN") (user token) -> 403
+GET {{host}}/api/v1/admin/stats
+Authorization: Bearer {{userLogin.response.body.accessToken}}
+
+### 9. Admin audit - method level hasAuthority('admin:read') (admin token) -> 200
+GET {{host}}/api/v1/admin/audit
+Authorization: Bearer {{adminLogin.response.body.accessToken}}
+
+### 10. No token -> 401 with JSON body
+GET {{host}}/api/v1/users/me
+
+### 11. Tampered token -> 401
+GET {{host}}/api/v1/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.tampered.token
+
+### 12. Wrong password -> 401
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "wrong-password"
+}
+
+### 13. Validation error -> 400
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "",
+  "password": "x"
+}
+
+### =====================================================
+### Slim token + Redis authority cache (Plan B)
+### Prerequisite: Redis running on localhost:6379
+###   docker run -d --name redis -p 6379:6379 redis:7
+### Inspect cache with: redis-cli GET auth:authorities:admin
+### =====================================================
+
+### 14. Token stays slim - decode the middle segment, only sub/iat/exp inside
+GET {{host}}/api/v1/users/me
+Authorization: Bearer {{adminLogin.response.body.accessToken}}
+
+### 15. Evict authority cache for 'user' (permission changes take effect on next request)
+DELETE {{host}}/api/v1/admin/authority-cache/user
+Authorization: Bearer {{adminLogin.response.body.accessToken}}
+
+### 16. Permission revocation demo:
+###  a) open H2 console, run: DELETE FROM user_roles WHERE user_id = (SELECT id FROM users WHERE username='user')
+###  b) GET /users with the user token -> still 200 (cached authorities)
+###  c) run request 15 above to evict
+###  d) run this request again -> 403 (authorities reloaded from DB, now empty)
+GET {{host}}/api/v1/users
+Authorization: Bearer {{userLogin.response.body.accessToken}}

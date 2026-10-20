@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:jobscheduler;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+  kafka:
+    # dev profile：嵌入式 Kafka（KRaft）由先启动的服务在本机 9092 拉起
+    bootstrap-servers: localhost:9092
+
+scheduler:
+  # H2 不支持 FOR UPDATE SKIP LOCKED，dev 下用普通查询
+  skip-locked: false
+  poll-interval-ms: 5000

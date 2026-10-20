@@ -1,0 +1,121 @@
+### 健康检查
+GET http://localhost:8096/actuator/health
+
+### ---------- 注册商户端点 ----------
+
+### 正常商户（指向本机 mock 接收端）
+POST http://localhost:8096/api/merchants/mch_healthy/endpoints
+Content-Type: application/json
+
+{
+  "url": "http://localhost:8096/api/mock/receiver/ok",
+  "secret": "whsec_demo",
+  "eventTypes": []
+}
+
+### 恶意 URL：指向本机回环地址 —— 应被 SSRF 拦截，返回 400 SSRF_BLOCKED
+POST http://localhost:8096/api/merchants/mch_evil/endpoints
+Content-Type: application/json
+
+{
+  "url": "http://127.0.0.1:8096/api/mock/receiver/ok"
+}
+
+### 恶意 URL：指向云元数据服务 —— 应被 SSRF 拦截
+POST http://localhost:8096/api/merchants/mch_evil/endpoints
+Content-Type: application/json
+
+{
+  "url": "http://169.254.169.254/latest/meta-data/"
+}
+
+### 恶意 URL：非 http/https —— 应被 SSRF 拦截
+POST http://localhost:8096/api/merchants/mch_evil/endpoints
+Content-Type: application/json
+
+{
+  "url": "file:///etc/passwd"
+}
+
+### ---------- 发送内部事件 ----------
+
+### 追问 1：发往恒定 500 的商户 -> 观察指数退避重试
+POST http://localhost:8096/api/events
+Content-Type: application/json
+
+{
+  "merchantId": "mch_broken",
+  "eventType": "charge.succeeded",
+  "payload": "{\"amount\":1000,\"currency\":\"usd\"}"
+}
+
+### 追问 2：发往「接受连接后挂起 30 秒」的商户
+POST http://localhost:8096/api/events
+Content-Type: application/json
+
+{
+  "merchantId": "mch_slowpoke",
+  "eventType": "charge.succeeded",
+  "payload": "{\"amount\":1000,\"currency\":\"usd\"}"
+}
+
+### 追问 2：同时给健康商户发一个事件 —— 它不会被上面的慢商户拖住
+POST http://localhost:8096/api/events
+Content-Type: application/json
+
+{
+  "merchantId": "mch_healthy",
+  "eventType": "customer.password_reset",
+  "payload": "{\"userId\":\"u_1\"}"
+}
+
+### 追问 4：发往会计平台商户（接收端按事件 ID 幂等）
+POST http://localhost:8096/api/events
+Content-Type: application/json
+
+{
+  "merchantId": "mch_accounting",
+  "eventType": "charge.succeeded",
+  "eventId": "evt_dup_demo_1",
+  "payload": "{\"amount\":10000,\"currency\":\"usd\"}"
+}
+
+### 相同 eventId 再发一次 —— 平台侧幂等会直接返回同一条事件，不会投递两次
+POST http://localhost:8096/api/events
+Content-Type: application/json
+
+{
+  "merchantId": "mch_accounting",
+  "eventType": "charge.succeeded",
+  "eventId": "evt_dup_demo_1",
+  "payload": "{\"amount\":10000,\"currency\":\"usd\"}"
+}
+
+### ---------- 查询 ----------
+
+### 查询事件状态
+GET http://localhost:8096/api/events/evt_dup_demo_1
+
+### 查询投递尝试流水（能看到每一次 500、每一次退避）
+GET http://localhost:8096/api/events/evt_dup_demo_1/attempts
+
+### 商户健康度：泳道 MAIN / SLOW / QUARANTINE + 断路器状态
+GET http://localhost:8096/api/merchants/mch_slowpoke/health
+
+### 全局视图：所有断路器状态与队列深度
+GET http://localhost:8096/api/merchants/mch_healthy/health/global
+
+### 死信队列
+GET http://localhost:8096/api/dlq
+
+### 重放死信
+POST http://localhost:8096/api/dlq/evt_dup_demo_1/replay
+
+### Mock 接收端统计（processedEventIds / duplicatesIgnored）
+GET http://localhost:8096/api/mock/stats
+
+### 重置 Mock 接收端
+POST http://localhost:8096/api/mock/reset
+
+### Prometheus 指标
+GET http://localhost:8096/actuator/prometheus

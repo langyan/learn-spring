@@ -1,0 +1,84 @@
+@baseUrl = http://localhost:8095
+
+### 发送 OTP 短信（critical 优先级）
+POST {{baseUrl}}/api/notifications
+Content-Type: application/json
+
+{
+  "userId": "user-001",
+  "type": "OTP",
+  "channel": "SMS",
+  "templateId": "otp-sms",
+  "data": {
+    "code": "834291",
+    "minutes": 5
+  },
+  "idempotencyKey": "otp-user-001-001"
+}
+
+### 发送营销 Push
+POST {{baseUrl}}/api/notifications
+Content-Type: application/json
+
+{
+  "userId": "user-002",
+  "type": "MARKETING",
+  "channel": "PUSH",
+  "templateId": "flash-sale-push",
+  "data": {
+    "productName": "AirPods Pro",
+    "discount": 7
+  }
+}
+
+### 用户已关闭邮件偏好（应返回 BLOCKED）
+POST {{baseUrl}}/api/notifications
+Content-Type: application/json
+
+{
+  "userId": "user-marketing-off",
+  "type": "MARKETING",
+  "channel": "EMAIL",
+  "templateId": "order-email",
+  "data": {
+    "orderId": "ORD-123",
+    "amount": 99.9
+  }
+}
+
+### 模拟 Provider 可重试错误
+POST {{baseUrl}}/api/notifications
+Content-Type: application/json
+
+{
+  "userId": "user-retry",
+  "type": "OTP",
+  "channel": "PUSH",
+  "templateId": "flash-sale-push",
+  "data": {
+    "simulateError": "TRANSIENT"
+  },
+  "idempotencyKey": "retry-demo-001"
+}
+
+### 查询通知状态（将上一步返回的 notificationId 替换到路径）
+GET {{baseUrl}}/api/notifications/{{notificationId}}
+
+### 批量营销活动（流式 Kafka，不写千万行 DB）
+POST {{baseUrl}}/api/notifications/campaigns
+Content-Type: application/json
+
+{
+  "userIds": ["user-101", "user-102", "user-103"],
+  "type": "MARKETING",
+  "channel": "PUSH",
+  "templateId": "flash-sale-push",
+  "data": {
+    "productName": "闪购专场",
+    "discount": 5
+  },
+  "campaignId": "flash-sale-2026-09-16"
+}
+
+### Prometheus 指标
+GET {{baseUrl}}/actuator/prometheus

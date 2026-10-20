@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: lin-spring-security-jwt
+
+  datasource:
+    url: jdbc:h2:mem:securityjwt;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    # data.sql must run AFTER Hibernate schema creation
+    defer-datasource-initialization: true
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  h2:
+    console:
+      enabled: true
+
+  sql:
+    init:
+      mode: always
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      # short timeouts so authority resolution degrades to DB quickly when Redis is down
+      timeout: 500ms
+      connect-timeout: 500ms
+
+app:
+  jwt:
+    # HS256 requires a key of at least 256 bits (32 chars).
+    # In production, inject via environment variable: APP_JWT_SECRET
+    secret: "lin-spring-security-jwt-demo-secret-key-ChangeMe-32+chars!"
+    expiration-ms: 3600000 # 1 hour
+  authority-cache:
+    # Redis TTL for cached authorities; permission changes take effect
+    # after eviction or when this TTL expires.
+    ttl: 10m
+
+logging:
+  level:
+    org.hibernate.sql: info
+    org.springframework.security: info

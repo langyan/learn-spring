@@ -1,0 +1,61 @@
+### 分布式作业调度器 —— 手工测试用例
+### 前置：docker compose up -d && 三个服务已启动（默认 mysql profile）
+###   job-api-service  -> http://localhost:8081
+###   watcher-service  -> http://localhost:8082
+###   executor-service -> http://localhost:8083
+### dev 模式（无 Docker）：将三个服务以 dev profile 启动（任意顺序，嵌入式 Kafka 由首个服务拉起）
+
+### 1. 创建作业（1 分钟后执行，模拟瞬时失败 2 次）
+POST http://localhost:8081/v1/api/jobs
+Content-Type: application/json
+
+{
+  "name": "demo-job",
+  "scheduledTime": "2026-10-19T08:00:00Z",
+  "payload": "{\"sleepMs\":50,\"failUntilAttempt\":1}",
+  "retries": 3,
+  "meta": "manual-test"
+}
+
+### 2. 立即执行（RUNNOW 快车道：跳过调度数据库，直推 Kafka）
+POST http://localhost:8081/v1/jobs/{{jobId}}/runNow
+
+### 3. 查询作业详情
+GET http://localhost:8081/v1/api/job/{{jobId}}
+
+### 4. 查询执行状态（含最近一次执行记录）
+GET http://localhost:8081/v1/api/job/{{jobId}}/status
+
+### 5. 更新作业（仅 PENDING 状态允许）
+PUT http://localhost:8081/v1/api/job/{{jobId}}
+Content-Type: application/json
+
+{
+  "payload": "{\"sleepMs\":10}"
+}
+
+### 6. 取消作业（Redis 写 JOB_{id}_CANCEL，TTL 30s；执行器 pre-flight 截停）
+POST http://localhost:8081/v1/jobs/{{jobId}}/cancel
+
+### ===== 压测（10k 作业/秒目标验证）=====
+
+### 7. 批量并发提交 10000 个作业（scheduled_time 分布在未来 1 秒内，每个 sleep 5ms）
+POST http://localhost:8081/v1/api/jobs/loadtest?count=10000&spreadMs=1000&sleepMs=5
+
+### 8. 吞吐/延迟统计（目标：throughput >= 10000/s，p99 延迟 <= 2000ms）
+GET http://localhost:8081/v1/api/jobs/loadtest/stats
+
+### 9. 清空压测数据
+POST http://localhost:8081/v1/api/jobs/loadtest/reset
+
+### ===== 可观测性 =====
+
+### 10. 各服务健康检查
+GET http://localhost:8081/actuator/health
+###
+GET http://localhost:8082/actuator/health
+###
+GET http://localhost:8083/actuator/health
+
+### 11. Prometheus 指标
+GET http://localhost:8081/actuator/prometheus

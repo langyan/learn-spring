@@ -1,0 +1,52 @@
+# 分布式作业调度器本地基础设施（默认 mysql profile 使用）
+# 启动：docker compose up -d
+# 停止：docker compose down -v
+#
+# 端口规划（避开仓库其他模块已占用端口）：
+#   MySQL 3307 | Redis 6381 | Kafka 9094
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: lin-job-scheduler-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: jobscheduler
+    ports:
+      - "3307:3306"
+    volumes:
+      - lin-job-scheduler-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: lin-job-scheduler-redis
+    ports:
+      - "6381:6379"
+
+  kafka:
+    # 官方 Kafka 3.9 镜像，KRaft 单节点（无需 Zookeeper）
+    image: apache/kafka:3.9.0
+    container_name: lin-job-scheduler-kafka
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,HOST://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,HOST://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+volumes:
+  lin-job-scheduler-mysql-data:

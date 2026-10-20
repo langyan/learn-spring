@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: lin-spring-shiro-jwt
+
+  datasource:
+    url: jdbc:h2:mem:shirojwt;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    # run data.sql AFTER Hibernate created the schema
+    defer-datasource-initialization: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  h2:
+    console:
+      enabled: true
+
+  sql:
+    init:
+      mode: always
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      # short timeouts so authority resolution degrades to DB quickly when Redis is down
+      timeout: 500ms
+      connect-timeout: 500ms
+
+app:
+  jwt:
+    # HS256 requires a key of at least 256 bits (32 chars).
+    # In production, inject via environment variable: APP_JWT_SECRET
+    secret: "lin-spring-shiro-jwt-demo-secret-key-ChangeMe-32+chars!"
+    expiration-ms: 3600000 # 1 hour
+  authority-cache:
+    # Redis TTL for cached authorities; permission changes take effect
+    # after eviction or when this TTL expires.
+    ttl: 10m

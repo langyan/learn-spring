@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: job-api-service
+  profiles:
+    # 默认连 docker-compose 真实中间件；无 Docker 时用 -Dspring-boot.run.profiles=dev
+    default: mysql
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        linger.ms: 5
+        compression.type: lz4
+
+server:
+  port: 8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+scheduler:
+  cancel-ttl-seconds: 30
+  topics:
+    partitions: 12
+
+loadtest:
+  insert-threads: 8
+  insert-batch-size: 500
