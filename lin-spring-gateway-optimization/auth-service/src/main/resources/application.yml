@@ -1,0 +1,17 @@
+server:
+  port: 8090
+
+spring:
+  application:
+    name: lin-spring-gateway-optimization-auth
+
+# 访问令牌 TTL：短时效（文章建议 5 分钟），配合网关侧内省缓存获得高命中
+auth:
+  token:
+    ttl-seconds: 300
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

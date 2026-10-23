@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: gateway-optimization
+    metrics_path: /actuator/prometheus
+    static_configs:
+      # 网关运行在宿主机 8080（容器内访问宿主机）
+      - targets: ["host.docker.internal:8080"]

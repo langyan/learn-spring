@@ -36,6 +36,7 @@ The repository is organized as multiple independent Maven modules, each demonstr
 - **lin-spring-k8s** - Kubernetes deployment examples
 - **lin-spring-docker-images** - Docker containerization
 - **lin-spring-flyway** - Database migration with Flyway
+- **lin-spring-gateway-optimization** - API gateway optimization multi-module project (auth offloading with ECDSA local verify + LRU introspection cache, HTTP/2 connection pooling, hybrid token-bucket rate limiting with Redis 100ms sync, response cache, request coalescing, async access logging, full Micrometer metrics)
 
 ## Common Development Tasks
 

@@ -1,0 +1,101 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: lin-spring-gateway-optimization-gateway
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 100ms
+      # 仅后台限流同步线程使用，连接池无需太大
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 4
+
+  cloud:
+    gateway:
+      metrics:
+        enabled: true
+
+      # ===== 连接池化 + HTTP/2（文章问题 2 的修复）=====
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 5s
+        pool:
+          type: fixed
+          # 每上游预热连接池上限：请求复用连接，免去每次 TCP(+TLS) 握手
+          max-connections: 100
+          pending-acquire-timeout: 2000ms
+          # keep-alive：60s 空闲保活，最大化连接重用率（目标 >99%）
+          max-idle-time: 60s
+          metrics: true
+        # 对支持 h2c/h2 的上游启用 HTTP/2 多路复用；本地演示上游会自动回退 1.1 keep-alive
+        http2:
+          enabled: true
+
+      routes:
+        - id: auth-service
+          uri: http://localhost:8090
+          predicates:
+            - Path=/auth/**
+        - id: catalog-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/catalog/**
+        - id: order-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/orders/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,gateway
+  health:
+    redis:
+      # Redis 仅用于限流全局对账且已设计降级（不可用时自动纯本地），
+      # 不应把网关整体健康状态拖垮
+      enabled: false
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# ===== 网关优化参数（每个段落对应文章的一个优化点）=====
+gateway-optimization:
+  auth:
+    jwks-url: http://localhost:8090/auth/jwks
+    jwks-refresh-interval: 5m
+    jwks-refresh-interval-ms: 300000
+    introspection-cache-max-size: 50000
+    introspection-cache-ttl: 5m
+    issuer: lin-gateway-optimization-auth
+    whitelist-paths:
+      - /auth/**
+      - /actuator/**
+  ratelimit:
+    enabled: true
+    capacity: 10
+    refill-per-second: 5.0
+    sync-interval-ms: 100
+    global-limit-per-second: 50
+    max-keys: 10000
+    degrade-to-local-on-redis-failure: true
+  cache:
+    enabled: true
+    ttl: 10s
+    max-size: 1000
+    cacheable-paths:
+      - /api/catalog/products
+  access-log:
+    queue-capacity: 10000
+    batch-size: 100
+    flush-interval-ms: 500
+
+logging:
+  level:
+    com.lin.spring.gateway: info

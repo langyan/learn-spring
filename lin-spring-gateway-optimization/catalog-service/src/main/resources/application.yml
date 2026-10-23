@@ -1,0 +1,12 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: lin-spring-gateway-optimization-catalog
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

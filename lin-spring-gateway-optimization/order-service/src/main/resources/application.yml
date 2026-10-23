@@ -1,0 +1,12 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: lin-spring-gateway-optimization-order
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

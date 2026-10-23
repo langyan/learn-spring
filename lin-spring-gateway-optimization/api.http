@@ -1,0 +1,133 @@
+### lin-spring-gateway-optimization —— API 网关优化完整演示
+### 前置：docker/docker-compose.yml 已启动（Redis）、四个服务已启动
+### 启动顺序：auth-service(8090) -> catalog-service(8081) -> order-service(8082) -> gateway(8080)
+
+@host = http://localhost:8080
+
+### ============================================================
+### 0. 健康检查
+### ============================================================
+
+### 网关路由表（认证白名单内，无需令牌）
+GET {{host}}/actuator/gateway/routes
+Accept: application/json
+
+### ============================================================
+### 1. 认证卸载：令牌签发 + 本地 ECDSA 验签 + 内省缓存
+### ============================================================
+
+### 1.1 签发 ES256 令牌（认证服务，白名单路径）
+POST {{host}}/auth/token
+Content-Type: application/json
+
+{
+  "username": "kiran",
+  "roles": ["USER"]
+}
+
+### > 把响应中的 access_token 复制到下面 @token 变量
+@token = PASTE_YOUR_TOKEN_HERE
+
+### 1.2 无令牌访问受保护 API -> 401（认证过滤器拦截）
+GET {{host}}/api/orders
+
+### 1.3 伪造/篡改令牌 -> 401 signature verification failed（本地验签拦截，零网络调用）
+GET {{host}}/api/orders
+Authorization: Bearer eyJhbGciOiJFUzI1NiJ9.forged.payload
+
+### 1.4 有效令牌首次访问 -> X-Auth-Source: LOCAL_VERIFY（本地 ECDSA 验签，~0.05ms）
+GET {{host}}/api/orders
+Authorization: Bearer {{token}}
+
+### 1.5 相同令牌再次访问 -> X-Auth-Source: INTROSPECTION_CACHE（LRU 缓存命中，跳过验签）
+GET {{host}}/api/orders
+Authorization: Bearer {{token}}
+
+### 1.6 查看 token 内省缓存命中指标（gateway_auth_cache_hit_total / gateway_auth_cache_miss_total）
+GET {{host}}/actuator/prometheus
+
+### ============================================================
+### 2. 边缘缓存 + 请求合并（响应 X-Cache 头 + 下游计数对照）
+### ============================================================
+
+### 2.0 重置下游计数器
+POST http://localhost:8081/api/catalog/stats/reset
+
+### 2.1 冷访问 -> X-Cache: MISS，耗时 ~300ms（下游模拟延迟），下游计数 +1
+GET {{host}}/api/catalog/products?type=hot
+Authorization: Bearer {{token}}
+
+### 2.2 TTL 内重复访问 -> X-Cache: HIT，耗时 ~几 ms，下游计数不变
+GET {{host}}/api/catalog/products?type=hot
+Authorization: Bearer {{token}}
+
+### 2.3 查看（下游真实收到的请求数）—— 你发了 2 次请求，productRequests 应为 1
+GET {{host}}/api/catalog/stats
+Authorization: Bearer {{token}}
+
+### 2.4 请求合并演示：先等缓存过期（TTL 10s），再"几乎同时"发出多个请求
+###     （用 IDE 的并发执行，或命令：for /l %i in (1,1,10) do start curl -s -o nul "{{host}}/api/catalog/products?type=new" -H "Authorization: Bearer {{token}}"）
+###     预期：1 个 X-Cache: MISS + 若干 X-Cache: COALESCED；productRequests 只 +1
+
+### 2.5 不同的查询参数是不同的缓存 key -> 各自 MISS 一次
+GET {{host}}/api/catalog/products?type=new&delayMs=500
+Authorization: Bearer {{token}}
+
+### ============================================================
+### 3. 混合限流：本地令牌桶（capacity=10, refill=5/s）
+### ============================================================
+
+### 3.1 快速连发 15 个请求（比如连续执行本请求 15 次）
+###     前 ~10 个通过，之后 429 + Retry-After: 1（本地桶判定，零 Redis 往返）
+###     等 1-2 秒桶回填后可再次通过
+GET {{host}}/api/orders
+Authorization: Bearer {{token}}
+
+### 3.2 查看限流指标（gateway_ratelimit_rejected_total / redis sync duration）
+GET {{host}}/actuator/prometheus
+
+### 3.3 多实例视角：把 gateway-optimization.ratelimit.global-limit-per-second 调小（如 5）
+###     再压测，可观察到 Redis 对账后的全局收敛（reason=global_limit）
+
+### ============================================================
+### 4. 连接池 / keep-alive（下游 order 服务）
+### ============================================================
+
+### 4.1 创建订单（POST 不缓存、不合并，走连接池复用连接）
+POST {{host}}/api/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "productId": "P-1001",
+  "quantity": 2
+}
+
+### 4.2 查询订单列表
+GET {{host}}/api/orders
+Authorization: Bearer {{token}}
+
+### 4.3 查看连接池指标（reactor.netty.connection.provider.* —— acquired/idle/pending）
+GET {{host}}/actuator/prometheus
+
+### ============================================================
+### 5. 异步日志与全链路指标
+### ============================================================
+
+### 5.1 网关控制台可看到后台批量刷出的 ACCESS_BATCH 日志行
+###     （请求路径零 I/O，批量间隔 500ms）
+
+### 5.2 核心指标速查（Prometheus 端点）：
+###     gateway_auth_verify_duration_seconds     本地验签延迟（p50/p99，应 < 1ms）
+###     gateway_auth_cache_hit_total             内省缓存命中
+###     gateway_cache_hit|miss|coalesced_total    响应缓存/合并
+###     gateway_upstream_duration_seconds         上游调用（缓存未命中路径）
+###     gateway_ratelimit_duration_seconds        限流判定（本地，微秒级）
+###     gateway_ratelimit_redis_sync_duration_seconds  Redis 对账（目标 < 10ms）
+###     gateway_log_dropped_total                 日志削峰丢弃数
+###     reactor.netty.connection.provider.*       连接池复用
+GET {{host}}/actuator/prometheus
+
+### 6. 降级演示：停掉 Redis（docker stop gateway-optimization-redis）
+###    网关不宕机：限流自动退化为纯本地（gateway_ratelimit_redis_degraded_total 增长），
+###    其余功能完全不受影响；重启 Redis 后自动恢复对账。

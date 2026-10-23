@@ -1,0 +1,43 @@
+# 混合限流的全局计数器。
+# 网关仅在后台同步线程（每 100ms 一次批量对账）访问 Redis，请求路径零 Redis 调用。
+#
+#   docker compose up -d
+#
+# 可选观测栈（Prometheus + Grafana）：
+#   docker compose --profile observability up -d
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: gateway-optimization-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ---- 可选：抓取网关 /actuator/prometheus 的指标面板 ----
+  prometheus:
+    profiles: [observability]
+    image: prom/prometheus:latest
+    container_name: gateway-optimization-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    profiles: [observability]
+    image: grafana/grafana:latest
+    container_name: gateway-optimization-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
