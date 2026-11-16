@@ -1,0 +1,34 @@
+server:
+  port: 8193
+
+spring:
+  application:
+    name: movie-booking-payment-service
+  cloud:
+    compatibility-verifier:
+      enabled: false
+
+movie-booking:
+  payment-gateway:
+    # Simulated latency per channel (ms): UPI is slower than CARD in reality.
+    upi-delay-ms: 2000
+    card-delay-ms: 500
+    webhook:
+      # Where the async callback is delivered (booking-service via gateway).
+      callback-base-url: ${WEBHOOK_CALLBACK_BASE_URL:http://movie-booking-gateway:8180}
+      # LOCAL delivers directly through eureka/loadbalancer in dev.
+      callback-mode: ${WEBHOOK_CALLBACK_MODE:lb}
+    failure-rate: 0.0
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8762/eureka/}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

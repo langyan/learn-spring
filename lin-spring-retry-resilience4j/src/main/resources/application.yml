@@ -1,10 +1,22 @@
 spring:
   application:
     name: lin-spring-retry-resilience4j
+
 resilience4j:
   circuitbreaker:
     instances:
       paymentService:
-        failureRateThreshold: 50
-        ringBufferSizeInClosedState: 5
-        waitDurationInOpenState: 10s
+        failure-rate-threshold: 50
+        sliding-window-size: 5
+        minimum-number-of-calls: 5
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,circuitbreakers
+  health:
+    circuitbreakers:
+      enabled: true

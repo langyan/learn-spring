@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: grpc-client
+
+server:
+  # 8080 常被本机其他学习项目占用，本项目网关固定用 8081
+  port: 8081
+
+grpc:
+  client:
+    payment-service:
+      address: static://localhost:9090
+      negotiation-type: plaintext
+
+logging:
+  level:
+    net.devh.boot.grpc: INFO

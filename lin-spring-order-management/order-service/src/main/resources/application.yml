@@ -1,0 +1,51 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: order-service
+  datasource:
+    url: jdbc:postgresql://localhost:5434/orders_db
+    username: lin
+    password: lin
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: localhost:29093
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: order-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+app:
+  jwt:
+    # HS256 需要 >= 32 字节密钥；演示用共享密钥，生产应使用 OAuth2/OIDC
+    secret: lin-order-management-demo-secret-key-please-rotate-in-production
+    ttl-seconds: 3600
+  inventory:
+    base-url: http://localhost:8082
+    connect-timeout-ms: 1000
+    read-timeout-ms: 2000
+    max-attempts: 3
+  outbox:
+    poll-fixed-delay-ms: 500
+    batch-size: 100
+    send-timeout-seconds: 10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    com.lin.spring.orders: INFO

@@ -1,0 +1,61 @@
+# lin-spring-order-management 基础设施：PostgreSQL(5434, 4库) + Kafka KRaft(29093) + Redis(6381)
+# 端口避让仓库其他模块（9092/29092/5433/6380）
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lin-spring-order-management-postgres
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: lin
+      POSTGRES_PASSWORD: lin
+      # orders_db 由 POSTGRES_DB 创建；其余库由 initdb 脚本创建
+      POSTGRES_DB: orders_db
+    volumes:
+      - order-management-pg-data:/var/lib/postgresql/data
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lin -d orders_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: lin-spring-order-management-redis
+    ports:
+      - "6381:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  kafka:
+    # KRaft single-node Kafka, no Zookeeper required (对齐 lin-spring-movie-booking)
+    image: apache/kafka:3.9.0
+    container_name: lin-spring-order-management-kafka
+    ports:
+      - "29093:29093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,HOST://:29093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,HOST://localhost:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/9092' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  order-management-pg-data:

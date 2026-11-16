@@ -1,0 +1,48 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: payment-service
+  datasource:
+    url: jdbc:postgresql://localhost:5434/payments_db
+    username: lin
+    password: lin
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: localhost:29093
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: payment-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+app:
+  outbox:
+    poll-fixed-delay-ms: 500
+    batch-size: 100
+    send-timeout-seconds: 10
+  payment:
+    # 模拟渠道：请求处理延迟与超时判定
+    provider-timeout-ms: 2000
+    # UNKNOWN 支付的最小等待时长（超过后对账任务才查询渠道真实结果）
+    reconcile-after-seconds: 10
+    reconcile-scan-fixed-delay-ms: 5000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    com.lin.spring.orders: INFO

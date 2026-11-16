@@ -1,0 +1,88 @@
+### 可靠事件驱动演示：lin-spring-reliable-events
+### 默认运行（!kafka profile：内存事件总线 + H2）
+@host = http://localhost:8080
+
+### 健康检查（含调度器生命周期与积压详情）
+GET {{host}}/actuator/health
+
+### 组件级健康：事件基础设施
+GET {{host}}/actuator/health/eventsInfrastructure
+
+### 指标（Prometheus 文本格式）
+GET {{host}}/actuator/prometheus
+
+### ============ 订单入口 ============
+
+### 创建订单（业务与 Outbox 事件同事务提交）
+POST {{host}}/api/orders
+Content-Type: application/json
+
+{
+  "customerName": "Alice",
+  "amount": 199.99
+}
+
+### 查询订单
+GET {{host}}/api/orders/1
+
+### 查询消费侧投影（验证副作用只发生一次）
+GET {{host}}/api/orders/1/processed
+
+### ============ 故障演练 ============
+
+### 注入：接下来 2 次投递失败（模拟 broker 不可用 → 指数退避重试）
+POST {{host}}/api/simulator/fail-publish?times=2
+
+### 注入：接下来 3 次消费处理失败（模拟下游故障 → Inbox 持久重试）
+POST {{host}}/api/simulator/fail-handler?times=3
+
+### 注入：下一次投递重复 2 份（模拟 at-least-once → Inbox 去重）
+POST {{host}}/api/simulator/duplicate-next?enabled=true
+
+### 查看模拟器开关状态
+GET {{host}}/api/simulator
+
+### 复位全部故障注入
+DELETE {{host}}/api/simulator
+
+### ============ Outbox 运维 ============
+
+### 按状态查询 Outbox（PENDING / PROCESSING / PUBLISHED / FAILED）
+GET {{host}}/api/outbox?status=FAILED&page=0&size=20
+
+### 端到端链路追踪（同一 correlationId 的 Outbox + Inbox 记录）
+GET {{host}}/api/outbox/trace/{correlationId}
+
+### 手动触发一次派发（不等调度器 tick）
+POST {{host}}/api/outbox/dispatch-once
+
+### 手动重放 FAILED 的 Outbox 记录（重置 PENDING 立即派发）
+POST {{host}}/api/outbox/1/retry
+
+### ============ Inbox 运维 ============
+
+### 按状态查询 Inbox（RECEIVED / PROCESSING / PROCESSED / FAILED）
+GET {{host}}/api/inbox?status=FAILED&page=0&size=20
+
+### 按 eventId 查询单条 Inbox 记录
+GET {{host}}/api/inbox/{eventId}
+
+### 幂等演示：把同一事件原样重投（应返回 DUPLICATE）
+POST {{host}}/api/inbox/{eventId}/duplicate
+
+### 手动重放 FAILED 的 Inbox 事件
+POST {{host}}/api/inbox/{eventId}/retry
+
+### 手动触发一次重试 tick
+POST {{host}}/api/inbox/retry-once
+
+### ============ 维护 ============
+
+### 基础设施状态总览：调度器生命周期、状态计数、故障开关
+GET {{host}}/api/maintenance/status
+
+### 手动回收陈旧锁（超时 PROCESSING 记录）
+POST {{host}}/api/maintenance/recover-stale
+
+### 手动 TTL 清理已完结记录
+POST {{host}}/api/maintenance/cleanup

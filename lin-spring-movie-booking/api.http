@@ -1,0 +1,153 @@
+### 电影订票系统 — 手动测试主线（全部经网关 http://localhost:8180）
+### 启动顺序：compose up -d → discovery → gateway → movie → booking → payment → simulator
+
+### 0. 基础设施与服务健康
+GET http://localhost:8762/eureka/apps
+Accept: application/json
+
+###
+GET http://localhost:8180/actuator/health
+
+### ---------------------------------------------------------------------------
+### 1. 目录浏览（movie-service）
+### 影片列表
+GET http://localhost:8180/api/v1/movies?city=北京
+
+### 场次列表
+GET http://localhost:8180/api/v1/movies/1/shows?city=北京
+
+### 座位图（3 秒缓存，参考快照非权威判定）
+GET http://localhost:8180/api/v1/shows/1/seats
+
+### ---------------------------------------------------------------------------
+### 2. 占座（hold）— 座位 ID 见座位图返回；不同用户换 userId 与 idempotencyKey
+POST http://localhost:8180/api/v1/bookings/hold
+Content-Type: application/json
+
+{
+  "showId": 1,
+  "seatIds": [101, 102, 103],
+  "userId": 1001,
+  "idempotencyKey": "hold-demo-1001-a"
+}
+
+### 双击重放（同 userId + 同 idempotencyKey）→ 必须返回同一 booking
+POST http://localhost:8180/api/v1/bookings/hold
+Content-Type: application/json
+
+{
+  "showId": 1,
+  "seatIds": [101, 102, 103],
+  "userId": 1001,
+  "idempotencyKey": "hold-demo-1001-a"
+}
+
+### 他人抢同座位 → 预期 409 SEAT_TAKEN
+POST http://localhost:8180/api/v1/bookings/hold
+Content-Type: application/json
+
+{
+  "showId": 1,
+  "seatIds": [101, 102],
+  "userId": 1002,
+  "idempotencyKey": "hold-demo-1002-a"
+}
+
+### ---------------------------------------------------------------------------
+### 3. 支付（scenario 控制 mock 网关行为）
+### NORMAL：UPI 延迟约 2 秒后成功回调，booking 自动 CONFIRMED
+POST http://localhost:8180/api/v1/bookings/{{reference}}/pay
+Content-Type: application/json
+
+{
+  "userId": 1001,
+  "channel": "UPI",
+  "scenario": "NORMAL",
+  "idempotencyKey": "pay-demo-1001-a"
+}
+
+### DUPLICATE：连发 5 次相同 webhook，仅一次生效（看 booking-service 日志）
+POST http://localhost:8180/api/v1/bookings/{{reference}}/pay
+Content-Type: application/json
+
+{
+  "userId": 1003,
+  "channel": "CARD",
+  "scenario": "DUPLICATE",
+  "idempotencyKey": "pay-demo-1003-a"
+}
+
+### FAIL：支付失败 → 座位立即释放、booking FAILED
+POST http://localhost:8180/api/v1/bookings/{{reference}}/pay
+Content-Type: application/json
+
+{
+  "userId": 1004,
+  "channel": "UPI",
+  "scenario": "FAIL",
+  "idempotencyKey": "pay-demo-1004-a"
+}
+
+### LATE：迟到回调（默认 7 秒后回调；booking-service 以 HOLD_TTL_SECONDS=5 启动才构成"迟到"）
+###   → 落在 60 秒宽限窗口内：尝试回收座位并确认
+POST http://localhost:8180/api/v1/bookings/{{reference}}/pay
+Content-Type: application/json
+
+{
+  "userId": 1005,
+  "channel": "UPI",
+  "scenario": "LATE",
+  "idempotencyKey": "pay-demo-1005-a"
+}
+
+### LOST：回调丢失 → 支付停留在 UNKNOWN；用状态同步端点显式查询解锁
+POST http://localhost:8180/api/v1/bookings/{{reference}}/pay
+Content-Type: application/json
+
+{
+  "userId": 1006,
+  "channel": "UPI",
+  "scenario": "LOST",
+  "idempotencyKey": "pay-demo-1006-a"
+}
+
+### 显式同步支付状态（webhook 丢失时的唯一正道：查询，绝不假设）
+POST http://localhost:8180/api/v1/bookings/{{reference}}/payments/{{gatewayRef}}/sync
+
+### ---------------------------------------------------------------------------
+### 4. 查询
+### 预订详情
+GET http://localhost:8180/api/v1/bookings/{{reference}}?userId=1001
+
+### 座位图（确认后对应座位变 BOOKED）
+GET http://localhost:8180/api/v1/shows/1/seats
+
+### ---------------------------------------------------------------------------
+### 5. 运营看板（booking-service）
+### 竞态汇总：oversellDetected 必须恒为 0
+GET http://localhost:8180/api/v1/admin/metrics/race-summary
+
+### 手动触发过期清扫（平时由调度器每 5 秒执行）
+POST http://localhost:8180/api/v1/admin/expiry/sweep
+
+### Outbox 统计（PENDING/PROCESSING/PUBLISHED/FAILED）
+GET http://localhost:8180/api/v1/admin/outbox/stats
+
+### 死信重放
+POST http://localhost:8180/api/v1/admin/outbox/replay
+
+### ---------------------------------------------------------------------------
+### 6. 并发模拟（simulator，绕过网关直连 booking-service 测真实竞态）
+### 50 人同时抢同 4 个座位：succeeded 必须 = 1，conflicts = 49，oversellDetected = 0
+POST http://localhost:8194/api/v1/simulator/race
+Content-Type: application/json
+
+{
+  "showId": 1,
+  "seatIds": [201, 202, 203, 204],
+  "concurrency": 50,
+  "staggerMs": 50
+}
+
+### 再跑一次看板，验证 oversellDetected 仍为 0
+GET http://localhost:8180/api/v1/admin/metrics/race-summary

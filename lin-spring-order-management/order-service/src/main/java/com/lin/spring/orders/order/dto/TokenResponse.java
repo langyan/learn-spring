@@ -1,0 +1,4 @@
+package com.lin.spring.orders.order.dto;
+
+public record TokenResponse(String accessToken, String tokenType, long expiresIn) {
+}

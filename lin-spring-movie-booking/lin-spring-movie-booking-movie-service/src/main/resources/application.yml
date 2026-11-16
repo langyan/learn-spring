@@ -1,0 +1,39 @@
+server:
+  port: 8191
+
+spring:
+  application:
+    name: movie-booking-movie-service
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  datasource:
+    url: ${MOVIE_DB_URL:jdbc:mysql://localhost:3307/movie_catalog}
+    username: ${MOVIE_DB_USER:root}
+    password: ${MOVIE_DB_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6380}
+
+movie-booking:
+  seat-map:
+    # Advisory snapshot cache: absorbs ~500:1 read amplification on hot shows.
+    cache-ttl-seconds: 3
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8762/eureka/}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

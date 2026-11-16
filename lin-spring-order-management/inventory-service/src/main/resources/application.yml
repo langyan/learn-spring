@@ -1,0 +1,54 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: inventory-service
+  datasource:
+    url: jdbc:postgresql://localhost:5434/inventory_db
+    username: lin
+    password: lin
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60s
+      cache-null-values: false
+  data:
+    redis:
+      host: localhost
+      port: 6381
+  kafka:
+    bootstrap-servers: localhost:29093
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: inventory-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+app:
+  outbox:
+    poll-fixed-delay-ms: 500
+    batch-size: 100
+    send-timeout-seconds: 10
+  reservation:
+    ttl-minutes: 15
+    expiry-scan-fixed-delay-ms: 60000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    com.lin.spring.orders: INFO

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: grpc-server
+
+grpc:
+  server:
+    port: 9090
+
+logging:
+  level:
+    net.devh.boot.grpc: INFO

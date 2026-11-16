@@ -1,0 +1,56 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: chat-service
+  datasource:
+    url: jdbc:mysql://localhost:3307/chat_db
+    username: lin
+    password: lin
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: chat-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: com.lin.spring.chat.common.*
+  data:
+    redis:
+      host: localhost
+      port: 6382
+
+app:
+  jwt:
+    # HS256 需要 >= 32 字节密钥；演示用共享密钥（与 chat-gateway 一致），生产应使用 OAuth2/OIDC
+    secret: lin-spring-chat-demo-secret-key-please-rotate-in-production
+    ttl-seconds: 604800        # 7 天（桌面客户端使用习惯）
+  presence:
+    timeout-seconds: 30        # 心跳超时：超过判离线
+    evict-fixed-rate-ms: 10000 # 淘汰任务周期
+  recall:
+    window-seconds: 120        # 消息发出 2 分钟内可撤回
+  group:
+    max-members: 500           # 群成员上限
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+logging:
+  level:
+    com.lin.spring.chat: INFO

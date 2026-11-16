@@ -1,0 +1,267 @@
+### lin-spring-order-management 全场景调试脚本（VS Code REST Client）
+### 前置：cd lin-spring-order-management && docker compose up -d，然后依次启动 4 个服务：
+###   order-service (8081) / inventory-service (8082) / payment-service (8083) / notification-service (8084)
+
+@order = http://localhost:8081
+@inventory = http://localhost:8082
+@payment = http://localhost:8083
+
+### ---------------------------------------------------------------------------
+### 0. 登录换取 JWT（模拟登录：任意 customerId + name）
+# @name login
+POST {{order}}/api/v1/auth/token
+Content-Type: application/json
+
+{"customerId": 1, "name": "Alice"}
+
+###
+@token = {{login.response.body.accessToken}}
+
+### 1. 产品目录（首次查库，之后命中 Redis 缓存）
+GET {{inventory}}/api/v1/products
+
+### 单个产品（重复执行两次，inventory-service 日志第二次应显示 cache hit）
+GET {{inventory}}/api/v1/products/101
+
+### 调价（驱逐缓存 → 下一次读取新价；订单价格在创建时快照，不受影响）
+PUT {{inventory}}/api/v1/products/101/price
+Content-Type: application/json
+
+{"unitPrice": 84.90}
+
+### 权威库存视图（Redis 不参与库存正确性）
+GET {{inventory}}/api/v1/inventory/410
+
+### ---------------------------------------------------------------------------
+### 2. 场景 A：正常下单 → 预留 → 支付成功 → CONFIRMED
+# 先确认支付渠道为 SUCCESS
+PUT {{payment}}/api/v1/admin/payment-mode
+Content-Type: application/json
+
+{"mode": "SUCCESS"}
+
+### 下单（携带 Idempotency-Key，返回 202）
+# @name createA
+POST {{order}}/api/v1/orders
+Authorization: Bearer {{token}}
+Idempotency-Key: demo-key-A-001
+Content-Type: application/json
+
+{
+  "items": [
+    {"productId": 101, "quantity": 2},
+    {"productId": 205, "quantity": 1}
+  ]
+}
+
+###
+@orderA = {{createA.response.body.orderId}}
+
+### 幂等重放：同键同负载 → duplicate=true，orderId 相同
+POST {{order}}/api/v1/orders
+Authorization: Bearer {{token}}
+Idempotency-Key: demo-key-A-001
+Content-Type: application/json
+
+{
+  "items": [
+    {"productId": 101, "quantity": 2},
+    {"productId": 205, "quantity": 1}
+  ]
+}
+
+### 幂等冲突：同键不同负载 → 409（不静默返回无关订单）
+POST {{order}}/api/v1/orders
+Authorization: Bearer {{token}}
+Idempotency-Key: demo-key-A-001
+Content-Type: application/json
+
+{
+  "items": [
+    {"productId": 101, "quantity": 5}
+  ]
+}
+
+### 轮询订单状态（PENDING → PAYMENT_PENDING → CONFIRMED，outbox 轮询约 0.5s 一拍）
+GET {{order}}/api/v1/orders/{{orderA}}/status
+Authorization: Bearer {{token}}
+
+### 订单详情（含服务端快照单价）
+GET {{order}}/api/v1/orders/{{orderA}}
+Authorization: Bearer {{token}}
+
+### 支付记录视角
+GET {{payment}}/api/v1/payments/order/{{orderA}}
+
+### CONFIRMED 后库存被最终扣减（reserved 归零）
+GET {{inventory}}/api/v1/inventory/101
+
+### ---------------------------------------------------------------------------
+### 3. 场景 B：防超卖（product 410 库存仅 1 件，一次买 2 → FAILED）
+# @name createB
+POST {{order}}/api/v1/orders
+Authorization: Bearer {{token}}
+Idempotency-Key: demo-key-B-001
+Content-Type: application/json
+
+{"items": [{"productId": 410, "quantity": 2}]}
+
+###
+@orderB = {{createB.response.body.orderId}}
+
+### 状态应为 FAILED（库存不足，未预留任何商品）
+GET {{order}}/api/v1/orders/{{orderB}}/status
+Authorization: Bearer {{token}}
+
+### ---------------------------------------------------------------------------
+### 4. 场景 C：支付失败 → 释放库存
+PUT {{payment}}/api/v1/admin/payment-mode
+Content-Type: application/json
+
+{"mode": "FAILURE"}
+
+# @name createC
+POST {{order}}/api/v1/orders
+Authorization: Bearer {{token}}
+Idempotency-Key: demo-key-C-001
+Content-Type: application/json
+
+{"items": [{"productId": 520, "quantity": 1}]}
+
+###
+@orderC = {{createC.response.body.orderId}}
+
+### 状态应推进到 PAYMENT_FAILED，且库存已释放（available 恢复）
+GET {{order}}/api/v1/orders/{{orderC}}/status
+Authorization: Bearer {{token}}
+
+###
+GET {{inventory}}/api/v1/inventory/520
+
+### ---------------------------------------------------------------------------
+### 5. 场景 D：支付超时 → UNKNOWN → 对账发现"其实已扣款" → CONFIRMED
+PUT {{payment}}/api/v1/admin/payment-mode
+Content-Type: application/json
+
+{"mode": "TIMEOUT_THEN_SUCCESS"}
+
+# @name createD
+POST {{order}}/api/v1/orders
+Authorization: Bearer {{token}}
+Idempotency-Key: demo-key-D-001
+Content-Type: application/json
+
+{"items": [{"productId": 301, "quantity": 3}]}
+
+###
+@orderD = {{createD.response.body.orderId}}
+
+### 先观察到 PAYMENT_UNKNOWN（支付渠道 2s 超时后置为 UNKNOWN，等 3~10s 再查）
+GET {{order}}/api/v1/orders/{{orderD}}/status
+Authorization: Bearer {{token}}
+
+### 约 10~20 秒后对账任务查询渠道真实结果 → CONFIRMED
+GET {{order}}/api/v1/orders/{{orderD}}/status
+Authorization: Bearer {{token}}
+
+### 支付记录视角（status=COMPLETED，chargeId 带 reconciled 前缀）
+GET {{payment}}/api/v1/payments/order/{{orderD}}
+
+### ---------------------------------------------------------------------------
+### 6. 场景 E：超时 → 对账发现"渠道未扣款" → PAYMENT_FAILED + 释放库存
+PUT {{payment}}/api/v1/admin/payment-mode
+Content-Type: application/json
+
+{"mode": "TIMEOUT_THEN_FAIL"}
+
+# @name createE
+POST {{order}}/api/v1/orders
+Authorization: Bearer {{token}}
+Idempotency-Key: demo-key-E-001
+Content-Type: application/json
+
+{"items": [{"productId": 301, "quantity": 1}]}
+
+###
+@orderE = {{createE.response.body.orderId}}
+
+### 约 15~20 秒后：PAYMENT_FAILED，且 inventory 301 库存已回补
+GET {{order}}/api/v1/orders/{{orderE}}/status
+Authorization: Bearer {{token}}
+
+###
+GET {{inventory}}/api/v1/inventory/301
+
+### ---------------------------------------------------------------------------
+### 7. 场景 F：取消已 CONFIRMED 的订单 → 自动退款（补偿是新的财务操作）
+PUT {{payment}}/api/v1/admin/payment-mode
+Content-Type: application/json
+
+{"mode": "SUCCESS"}
+
+# @name createF
+POST {{order}}/api/v1/orders
+Authorization: Bearer {{token}}
+Idempotency-Key: demo-key-F-001
+Content-Type: application/json
+
+{"items": [{"productId": 520, "quantity": 2}]}
+
+###
+@orderF = {{createF.response.body.orderId}}
+
+### 等待 CONFIRMED 后取消
+POST {{order}}/api/v1/orders/{{orderF}}/cancel
+Authorization: Bearer {{token}}
+
+### 支付记录应出现 refundAmount / refundId
+GET {{payment}}/api/v1/payments/order/{{orderF}}
+
+### ---------------------------------------------------------------------------
+### 8. 场景 G：取消未支付订单（PENDING/PAYMENT_PENDING 可取消）+ 越权防护
+# @name createG
+POST {{order}}/api/v1/orders
+Authorization: Bearer {{token}}
+Idempotency-Key: demo-key-G-001
+Content-Type: application/json
+
+{"items": [{"productId": 101, "quantity": 1}]}
+
+###
+@orderG = {{createG.response.body.orderId}}
+
+### 立即取消（PENDING → CANCELLED，库存预留将被释放）
+POST {{order}}/api/v1/orders/{{orderG}}/cancel
+Authorization: Bearer {{token}}
+
+### 用另一个客户的 token 查看别人的订单 → 404（不泄露存在性）
+# @name loginBob
+POST {{order}}/api/v1/auth/token
+Content-Type: application/json
+
+{"customerId": 2, "name": "Bob"}
+
+###
+GET {{order}}/api/v1/orders/{{orderG}}
+Authorization: Bearer {{loginBob.response.body.accessToken}}
+
+### 未认证访问 → 401
+GET {{order}}/api/v1/orders/{{orderG}}
+
+### ---------------------------------------------------------------------------
+### 9. 订单历史（分页）
+GET {{order}}/api/v1/customers/1/orders?page=0&size=10
+Authorization: Bearer {{token}}
+
+### ---------------------------------------------------------------------------
+### 10. 补货（重跑防超卖演示前把 410 补回 1 件）
+POST {{inventory}}/api/v1/admin/restock
+Content-Type: application/json
+
+{"productId": 410, "quantity": 1}
+
+### 恢复支付模式
+PUT {{payment}}/api/v1/admin/payment-mode
+Content-Type: application/json
+
+{"mode": "SUCCESS"}

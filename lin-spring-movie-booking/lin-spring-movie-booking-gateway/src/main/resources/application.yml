@@ -1,0 +1,50 @@
+server:
+  port: 8180
+
+spring:
+  application:
+    name: movie-booking-gateway
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: [GET, POST, PUT, DELETE, OPTIONS]
+            allowedHeaders: "*"
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: movie-service-routes
+          uri: lb://movie-booking-movie-service
+          predicates:
+            - Path=/api/v1/movies/**,/api/v1/shows/**
+        - id: booking-service-routes
+          uri: lb://movie-booking-booking-service
+          predicates:
+            - Path=/api/v1/bookings/**,/api/v1/webhooks/**,/api/v1/admin/metrics/**,/api/v1/admin/expiry/**
+        - id: payment-service-routes
+          uri: lb://movie-booking-payment-service
+          predicates:
+            - Path=/api/v1/payments/**
+        - id: simulator-service-routes
+          uri: lb://movie-booking-simulator
+          predicates:
+            - Path=/api/v1/admin/simulator/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8762/eureka/}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway

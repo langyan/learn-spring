@@ -1,0 +1,45 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: chat-gateway
+  data:
+    redis:
+      host: localhost
+      port: 6382
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      # 每个网关实例消费自己的专属 topic；groupId 必须按实例隔离，避免多实例同组分摊消息
+      group-id: chat-gateway
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+        spring.json.trusted.packages: com.lin.spring.chat.common.*
+
+app:
+  gateway:
+    # 实例标识：per-gateway topic = gateway-{server-id}；水平扩展启动第二实例：
+    # mvn spring-boot:run -Dspring-boot.run.arguments="--server.port=8083 --app.gateway.server-id=gw-2"
+    server-id: gw-1
+  jwt:
+    # 与 chat-service 共享同一密钥（HS256 双服务校验）
+    secret: lin-spring-chat-demo-secret-key-please-rotate-in-production
+  presence:
+    timeout-seconds: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+logging:
+  level:
+    com.lin.spring.chat: INFO

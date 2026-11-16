@@ -1,0 +1,86 @@
+server:
+  port: 8192
+
+spring:
+  application:
+    name: movie-booking-booking-service
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  datasource:
+    # forceConnectionTimeZoneToSession makes NOW(3) inside native SQL agree
+    # with Hibernate's UTC Instants — clock skew between app and DB is a bug farm.
+    url: ${BOOKING_DB_URL:jdbc:mysql://localhost:3307/movie_booking?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true}
+    username: ${BOOKING_DB_USER:root}
+    password: ${BOOKING_DB_PASSWORD:root}
+    hikari:
+      # Keep the pool small (article warning): an oversized pool converts
+      # partial degradation into a full outage via MySQL lock waits.
+      maximum-pool-size: 20
+      minimum-idle: 5
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6380}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: movie-booking-notifications
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      ack-mode: manual
+
+movie-booking:
+  hold:
+    # Product decision: conversion friendliness vs inventory fluidity.
+    # Demo override: HOLD_TTL_SECONDS=5 makes the LATE-webhook scenario
+    # (gateway calls back after ~7s) actually land after expiry.
+    ttl-seconds: ${HOLD_TTL_SECONDS:300}
+    # Extended once when the user enters the payment screen.
+    extended-ttl-seconds: ${HOLD_EXTENDED_TTL_SECONDS:600}
+  late-webhook:
+    # Bounded grace window to re-hold + confirm seats taken by a payment that
+    # arrived after hold expiry. Outside it: refund + seats_lost_after_capture.
+    grace-seconds: 60
+  payment:
+    service-id: ${PAYMENT_SERVICE_ID:movie-booking-payment-service}
+  movie:
+    service-id: ${MOVIE_SERVICE_ID:movie-booking-movie-service}
+  expiry:
+    scan-delay-ms: 5000
+  outbox:
+    poll-interval-ms: 2000
+    batch-size: 50
+    max-attempts: 3
+    base-delay-ms: 1000
+    max-delay-ms: 30000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8762/eureka/}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus

@@ -1,0 +1,26 @@
+### lin-spring-grpc — gRPC 功能验证
+### 前置：先启动 lin-spring-grpc-server (9090)，再启动 lin-spring-grpc-client (8081)
+
+### 1. 一元 RPC：查询存在的支付（GetPayment -> 200）
+GET http://localhost:8081/api/payments/PAY-001
+
+### 2. 一元 RPC：不存在的支付（NOT_FOUND -> 404）
+GET http://localhost:8081/api/payments/PAY-999
+
+### 3. 一元 RPC：空 ID（INVALID_ARGUMENT -> 400）
+GET http://localhost:8081/api/payments/%20
+
+### 4. Deadline：服务端故意沉睡 5s，客户端 2s 截止（DEADLINE_EXCEEDED -> 504）
+GET http://localhost:8081/api/payments/SLOW-001
+
+### 5. 服务器流式 RPC：按用户列出支付（ListPayments -> 200，数组）
+GET http://localhost:8081/api/payments?userId=USER-1&pageSize=10
+
+### 6. 服务器流式 RPC：pageSize 限制
+GET http://localhost:8081/api/payments?userId=USER-1&pageSize=2
+
+### 7. 服务器流式 RPC：不存在的用户（空数组）
+GET http://localhost:8081/api/payments?userId=NOBODY
+
+### 8. 服务器不可用：停掉 lin-spring-grpc-server 后调用（UNAVAILABLE -> 503）
+# GET http://localhost:8081/api/payments/PAY-001
